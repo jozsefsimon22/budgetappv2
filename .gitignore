@@ -1,0 +1,80 @@
+# Rider-specific files
+.idea/
+*.iml
+.idea_modules/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+Generated_Code/
+
+# Build results
+bin/
+obj/
+out/
+
+# Logs
+*.log
+*.tlog
+*.log2
+
+# Cache files
+*.cache
+*.ilk
+*.idb
+
+# Package directories
+*.nuget/
+packages/
+.vscode/
+
+# Rider workspace settings
+.idea/
+.idea/.idea_modules
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/dictionaries
+.idea/libraries
+
+# Rider settings
+.idea/kotlinNotifications/
+.idea/codeStyles/
+.idea/inspectionProfiles/
+
+# System-generated files
+.DS_Store
+Thumbs.db
+
+# Tooling files
+*.vs/
+.vs/
+.vscode/
+test-results/
+.coverage
+.coveragexml
+
+# Blazor-specific ignores
+wwwroot/css/app.css
+wwwroot/js/app.js
+wwwroot/css/*.min.css
+wwwroot/js/*.min.js
+wwwroot/lib/
+
+# JetBrains .NET tools
+_ReSharper.Caches/
+*.DotSettings.user
+
+# By default, ignore NuGet Packages
+*.nupkg
+*.snupkg
+
+# Backup files
+*.bak
+*.swp
+*~
+
