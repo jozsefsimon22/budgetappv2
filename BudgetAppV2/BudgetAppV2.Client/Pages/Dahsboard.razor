@@ -1,0 +1,58 @@
+@page "/dashboard"
+@using System.Globalization
+@using BudgetAppV2.Client.Components.Dashboard
+
+<RadzenText TextStyle="TextStyle.H4">Dashboard</RadzenText>
+
+<RadzenStack Gap="0px" JustifyContent="JustifyContent.Center">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+        <RadzenSelectBar @bind-Value="@selectedValueYear" TValue="int" Multiple="false" Change="() => UpdateAmount(1000)">
+            <Items>
+                <RadzenSelectBarItem Text="2023" Value="2023"/>
+                <RadzenSelectBarItem Text="2024" Value="2024"/>
+                <RadzenSelectBarItem Text="2025" Value="2025"/>
+                <RadzenSelectBarItem Text="2026" Value="2026"/>
+            </Items>
+        </RadzenSelectBar>
+    </RadzenStack>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="margin-bottom: 1rem">
+        <RadzenSelectBar @bind-Value="@selectedValue" TValue="int" Multiple="false">
+            <Items>
+                <RadzenSelectBarItem Text="January" Value="1"/>
+                <RadzenSelectBarItem Text="February" Value="2"/>
+                <RadzenSelectBarItem Text="March" Value="3"/>
+                <RadzenSelectBarItem Text="April" Value="4"/>
+                <RadzenSelectBarItem Text="May" Value="5"/>
+                <RadzenSelectBarItem Text="June" Value="6"/>
+                <RadzenSelectBarItem Text="July" Value="7"/>
+                <RadzenSelectBarItem Text="August" Value="8"/>
+                <RadzenSelectBarItem Text="September" Value="9"/>
+                <RadzenSelectBarItem Text="October" Value="10"/>
+                <RadzenSelectBarItem Text="November" Value="11"/>
+                <RadzenSelectBarItem Text="December" Value="12"/>
+            </Items>
+        </RadzenSelectBar>
+    </RadzenStack>
+</RadzenStack>
+
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Center">
+    <TotalCard DisplayTitle="Income" TotalAmount="@TargetNumber"/>
+    <TotalCard DisplayTitle="Expenses" TotalAmount="@TargetNumber"/>
+    <TotalCard DisplayTitle="Saving" TotalAmount="@TargetNumber"/>
+</RadzenStack>
+
+@code {
+    private int DisplayNumber = 0;
+    private int TargetNumber = 1400;
+
+    int selectedValue = DateTime.Now.Month;
+    int selectedValueYear = DateTime.Now.Year;
+
+    private void UpdateAmount(int amount)
+    {
+        TargetNumber = amount;
+        Console.WriteLine(TargetNumber);
+        StateHasChanged();
+    }
+
+}

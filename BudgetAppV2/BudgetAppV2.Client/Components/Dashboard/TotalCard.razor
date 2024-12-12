@@ -1,0 +1,45 @@
+
+<RadzenCard Variant="Variant.Filled" Style="width: 350px" >
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceAround">
+        <RadzenStack Orientation="Orientation.Horizontal">
+            <RadzenIcon Icon="payments" Style="font-size: 24px; margin-bottom: 10px"></RadzenIcon>
+            <RadzenText TextStyle="TextStyle.H5">@DisplayTitle</RadzenText>
+        </RadzenStack>
+        <RadzenText TextStyle="TextStyle.H5">£@DisplayNumber</RadzenText>
+    </RadzenStack>
+</RadzenCard>
+
+@code {
+    [Parameter] public int TotalAmount { get; set; }
+    
+    [Parameter] public string DisplayTitle { get; set; }
+    
+    private int DisplayNumber = 0;
+    private readonly int AnimationSpeed = 1; // Speed in milliseconds
+    private int StepSize = 16; // Speed in milliseconds
+
+    
+    // Animates the amount on page load
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await AnimateNumber(0, TotalAmount);
+        }
+    }
+
+    private async Task AnimateNumber(int start, int end)
+    {
+        StepSize = TotalAmount / 100;
+        for (var i = start; i <= end; i+= StepSize)
+        {
+            DisplayNumber = i;
+            StateHasChanged(); // Update the UI
+            await Task.Delay(AnimationSpeed); // Control the speed of animation
+        }
+
+        DisplayNumber = TotalAmount;
+        StateHasChanged();
+
+    }
+}
