@@ -7,9 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Radzen.Blazor" Version="5.6.4" />
-        <ProjectReference Include="..\BudgetAppV2.Client\BudgetAppV2.Client.csproj"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0"/>
+        <ProjectReference Include="..\BudgetAppV2.Client\BudgetAppV2.Client.csproj" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
+        <PackageReference Include="Radzen.Blazor" Version="5.6.15" />
     </ItemGroup>
 
 </Project>
