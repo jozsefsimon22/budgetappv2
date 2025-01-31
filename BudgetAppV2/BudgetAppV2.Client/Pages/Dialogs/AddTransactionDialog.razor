@@ -1,0 +1,116 @@
+@using System.ComponentModel.DataAnnotations
+@using Shared.Entities
+@using Shared.Enums
+@inject DialogService DialogService
+
+<RadzenTemplateForm TItem="FinancialTransaction" Data="@newTransaction" Submit="@Submit">
+    <div class="p-4" style="display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Name Field -->
+        <div>
+            <label>Name</label>
+            <RadzenTextBox @bind-Value="newTransaction.Name" Placeholder="Enter transaction name" Style="width: 100%;"/>
+            <ValidationMessage For="() => newTransaction.Name"/>
+        </div>
+
+        <!-- Amount Field -->
+        <div>
+            <label>Amount</label>
+            <RadzenNumeric @bind-Value="newTransaction.CurrentAmount" Placeholder="Enter amount" Style="width: 100%;"/>
+            <ValidationMessage For="() => newTransaction.CurrentAmount"/>
+        </div>
+
+        <!-- Transaction Type Dropdown -->
+        <div>
+            <label>Transaction Type</label>
+            <RadzenDropDown Data="_transactionTypes" @bind-Value="newTransaction.TransactionType" Placeholder="Select transaction type" Style="width: 100%;"/>
+            <ValidationMessage For="() => newTransaction.TransactionType"/>
+        </div>
+
+        <!-- IsRecurring Checkbox -->
+        <div>
+            <label style="display: flex; align-items: center;">
+                <RadzenCheckBox @bind-Value="newTransaction.IsRecurring"/>
+                <span style="margin-left: 1rem">Is Recurring</span>
+            </label>
+        </div>
+
+        <!-- Transaction Frequency Dropdown -->
+        @* @if (newTransaction.IsRecurring) *@
+        @* { *@
+            <div>
+                <label>Transaction Frequency</label>
+                <RadzenDropDown Data="_transactionFrequencies"
+                                @bind-Value="newTransaction.TransactionFrequency"
+                                Placeholder="Select transaction frequency"
+                                
+                                Style="width: 100%;"/>
+                <ValidationMessage For="() => newTransaction.TransactionFrequency"/>
+            </div>
+        @* } *@
+
+        <!-- Start Date Picker -->
+        <div>
+            <label>Start Date</label>
+            <RadzenDatePicker @bind-Value="newTransaction.StartDate" Placeholder="Select start date" Style="width: 100%;"/>
+            <ValidationMessage For="() => newTransaction.StartDate"/>
+        </div>
+
+        @if (newTransaction.IsRecurring)
+        {
+            <!-- End Date Picker -->
+            <div>
+                <label>End Date (Optional)</label>
+                <RadzenDatePicker @bind-Value="newTransaction.EndDate" Placeholder="Select end date" Style="width: 100%;"/>
+            </div>
+        }
+
+        <!-- Buttons -->
+        <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Add" Type="submit" Style="margin-right: 1rem;"/>
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@Cancel"/>
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+@code {
+    FinancialTransaction newTransaction = new();
+
+    // Enum data sources
+    readonly IEnumerable<TransactionType> _transactionTypes = Enum.GetValues<TransactionType>();
+    readonly IEnumerable<TransactionFrequency> _transactionFrequencies = Enum.GetValues<TransactionFrequency>();
+
+    // Enum data sources with display-friendly names
+    // readonly IEnumerable<object> _transactionFrequencies = Enum.GetValues<TransactionFrequency>()
+    //     .Cast<TransactionFrequency>()
+    //     .Select(f => new { Text = GetDisplayName(f), Value = f });
+
+
+    void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(newTransaction.Name) || newTransaction.CurrentAmount <= 0)
+        {
+            // Add error handling or validation messages here if needed
+            return;
+        }
+
+        // Pass the transaction back to the parent
+        DialogService.Close(newTransaction);
+    }
+
+    void Cancel()
+    {
+        // Close dialog without returning a value
+        DialogService.Close(null);
+    }
+
+    static string GetDisplayName(TransactionFrequency frequency)
+    {
+        var fieldInfo = frequency.GetType().GetField(frequency.ToString());
+        var displayAttribute = fieldInfo?.GetCustomAttributes(typeof(DisplayAttribute), false)
+            .Cast<DisplayAttribute>()
+            .FirstOrDefault();
+
+        return displayAttribute?.Name ?? frequency.ToString();
+    }
+
+}

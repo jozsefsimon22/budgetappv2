@@ -1,7 +1,20 @@
-﻿namespace Shared.Enums;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
-public enum TransactionFrequency
+namespace Shared.Enums
 {
-    Monthly,
-    OneTime
+    public enum TransactionFrequency
+    {
+        [Description("Yearly")]
+        Yearly,
+        
+        // [Display(Name = "Monthly")]
+        Monthly,
+        
+        // [Display(Name = "Weekly")]
+        Weekly,
+
+        // [Display(Name = "One Time")]
+        OneTime
+    }
 }
