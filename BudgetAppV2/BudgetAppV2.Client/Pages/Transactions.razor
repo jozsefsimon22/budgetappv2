@@ -1,0 +1,163 @@
+﻿@page "/transactions"
+@using Shared.Entities
+@using Shared.Enums
+@using BudgetAppV2.Client.Pages.Dialogs
+@inject DialogService DialogService
+@inject NavigationManager navigationManager
+
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" PageSize="20" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@transactions" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedTransaction>
+    <HeaderTemplate>
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Add New Transaction" Click="@OpenAddTransactionDialog"/>
+    </HeaderTemplate>
+    <Columns>
+        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.TransactionType)" Title="Type Type" Width="160px" />
+        <RadzenDataGridColumn Title="Recurring" Width="160px" TextAlign="TextAlign.Center">
+            <Template>
+                @((context.IsRecurring ? "Yes" : "No"))
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.TransactionFrequency)" Title="Frequency" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.Name)" Title="Name" Width="200px" />
+        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.CurrentAmount)" Title="Amount" Width="160px" TextAlign="TextAlign.Right" FormatString="{0:C}"/>
+        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.StartDate)" Title="Start Date" Width="160px" FormatString="{0:MM/dd/yyyy}"/>
+        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.EndDate)" Title="End Date" Width="160px" FormatString="{0:MM/dd/yyyy}"/>120
+        <RadzenDataGridColumn Width="170px">
+            <Template Context="transaction">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="pageview" Text="View History" Click="@(args => ViewHistory(transaction.Id))"></RadzenButton>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    List<FinancialTransaction> financialTransactionToInsert = new List<FinancialTransaction>();
+    List<FinancialTransaction> financialTransactionToUpdate = new List<FinancialTransaction>();
+    IList<FinancialTransaction> transactions = new List<FinancialTransaction>();
+
+    async Task OpenAddTransactionDialog()
+    {
+    // Open the dialog and await the result
+        var result = await DialogService.OpenAsync<AddTransactionDialog>("Add Transaction", null);
+
+    // Check if result is not null and of the expected type
+        if (result is FinancialTransaction newTransaction)
+        {
+    // Add the new transaction to the collection
+            transactions.Add(newTransaction);
+
+    // Update the UI
+            StateHasChanged();
+        }
+        else
+        {
+    // Handle cases where the dialog returns null or unexpected data
+            Console.WriteLine("No valid transaction was returned from the dialog.");
+        }
+    }
+
+    async Task ViewHistory(Guid transactionId)
+    {
+        navigationManager.NavigateTo($"/transaction-history/");
+    }
+
+    void Reset()
+    {
+        financialTransactionToInsert.Clear();
+        financialTransactionToUpdate.Clear();
+    }
+
+    void Reset(FinancialTransaction financialTransaction)
+    {
+        financialTransactionToInsert.Remove(financialTransaction);
+        financialTransactionToUpdate.Remove(financialTransaction);
+    }
+
+    async Task EditRow(FinancialTransaction financialTransaction)
+    {
+        financialTransactionToUpdate.Add(financialTransaction);
+        // await 
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+    
+    // TODO: Create transaction mock data and add it to the gird. 
+        transactions = new List<FinancialTransaction>
+        {
+            new FinancialTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionType = TransactionType.Expense,
+                IsRecurring = true,
+                TransactionFrequency = TransactionFrequency.Monthly,
+                Name = "Netflix Subscription",
+                CurrentAmount = 15.99,
+                StartDate = new DateTime(2023, 1, 1),
+                EndDate = null
+            },
+            new FinancialTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionType = TransactionType.Income,
+                IsRecurring = true,
+                TransactionFrequency = TransactionFrequency.Monthly,
+                Name = "Salary",
+                CurrentAmount = 2500.00,
+                StartDate = new DateTime(2022, 6, 15),
+                EndDate = null
+            },
+            new FinancialTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionType = TransactionType.Expense,
+                IsRecurring = false,
+                TransactionFrequency = TransactionFrequency.OneTime,
+                Name = "New Laptop",
+                CurrentAmount = 1200.00,
+                StartDate = new DateTime(2024, 2, 10),
+                EndDate = new DateTime(2024, 2, 10)
+            },
+            new FinancialTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionType = TransactionType.Income,
+                IsRecurring = false,
+                TransactionFrequency = TransactionFrequency.OneTime,
+                Name = "Freelance Project",
+                CurrentAmount = 800.00,
+                StartDate = new DateTime(2024, 1, 15),
+                EndDate = null
+            },
+            new FinancialTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionType = TransactionType.Expense,
+                IsRecurring = true,
+                TransactionFrequency = TransactionFrequency.Monthly,
+                Name = "Gym Membership",
+                CurrentAmount = 25.00,
+                StartDate = new DateTime(2023, 3, 1),
+                EndDate = null
+            },
+            new FinancialTransaction
+            {
+                Id = Guid.NewGuid(),
+                TransactionType = TransactionType.Expense,
+                IsRecurring = false,
+                TransactionFrequency = TransactionFrequency.OneTime,
+                Name = "Concert Tickets",
+                CurrentAmount = 150.00,
+                StartDate = new DateTime(2024, 5, 20),
+                EndDate = new DateTime(2024, 5, 20)
+            }
+        };
+
+        return base.OnInitializedAsync();
+
+    }
+
+    IList<FinancialTransaction> _selectedTransaction;
+
+}

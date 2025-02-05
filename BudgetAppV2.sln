@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BudgetAppV2", "BudgetAppV2\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BudgetAppV2.Client", "BudgetAppV2\BudgetAppV2.Client\BudgetAppV2.Client.csproj", "{ED23A068-1324-418F-A833-29FDDFBCE265}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{52688A04-9349-48C2-A269-4FB5B66BA072}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{52688A04-9349-48C2-A269-4FB5B66BA072}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
