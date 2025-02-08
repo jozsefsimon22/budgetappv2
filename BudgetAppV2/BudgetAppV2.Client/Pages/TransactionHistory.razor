@@ -29,17 +29,6 @@ else
         </Columns>
     </RadzenDataGrid>
 
-    @* <RadzenChart> *@
-    @*     <RadzenLineSeries Smooth="true" Title="History" CategoryProperty="Date" Data="@revenue2023"></RadzenLineSeries> *@
-    @*     <RadzenMarkers Visible="true" MarkerType="MarkerType.Square" /> *@
-    @*     <RadzenSeriesDataLabels Visible="true" /> *@
-    @*     <RadzenCategoryAxis Padding="20" /> *@
-    @*     <RadzenValueAxis Formatter="@FormatAsUSD"> *@
-    @*         <RadzenGridLines Visible="true" /> *@
-    @*         <RadzenAxisTitle Text="Revenue in USD" /> *@
-    @*     </RadzenValueAxis> *@
-    @* </RadzenChart> *@
-
     <RadzenChart Style="border-top: 1px solid lightgray; margin-top: 2rem">
         <RadzenChartTooltipOptions Shared="@sharedTooltip" />
         <RadzenLineSeries Smooth="@smooth" Data="@displayData" CategoryProperty="Date" Title="Amount" LineType="LineType.Solid" ValueProperty="Revenue">
@@ -136,7 +125,7 @@ else
 
     void GoBack()
     {
-        Navigation.NavigateTo("/budget");
+        Navigation.NavigateTo("/transactions");
     }
 
 

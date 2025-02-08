@@ -21,10 +21,15 @@
         <RadzenDataGridColumn Property="@nameof(FinancialTransaction.Name)" Title="Name" Width="200px" />
         <RadzenDataGridColumn Property="@nameof(FinancialTransaction.CurrentAmount)" Title="Amount" Width="160px" TextAlign="TextAlign.Right" FormatString="{0:C}"/>
         <RadzenDataGridColumn Property="@nameof(FinancialTransaction.StartDate)" Title="Start Date" Width="160px" FormatString="{0:MM/dd/yyyy}"/>
-        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.EndDate)" Title="End Date" Width="160px" FormatString="{0:MM/dd/yyyy}"/>120
+        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.EndDate)" Title="End Date" Width="160px" FormatString="{0:MM/dd/yyyy}"/>
         <RadzenDataGridColumn Width="170px">
             <Template Context="transaction">
                 <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="pageview" Text="View History" Click="@(args => ViewHistory(transaction.Id))"></RadzenButton>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Width="170px">
+            <Template Context="transaction">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Text="Update" Click="@(args => OpenUpdateTransactionDialog(transaction))"></RadzenButton>
             </Template>
         </RadzenDataGridColumn>
     </Columns>
@@ -53,6 +58,33 @@
         else
         {
     // Handle cases where the dialog returns null or unexpected data
+            Console.WriteLine("No valid transaction was returned from the dialog.");
+        }
+    }
+
+    async Task OpenUpdateTransactionDialog(FinancialTransaction transaction)
+    {
+        // Create dialog parameters
+        var parameters = new Dictionary<string, object>
+        {
+            { "Transaction", transaction } // Pass the transaction to the dialog
+        };
+        
+        // Open the dialog and await the result
+        var result = await DialogService.OpenAsync<UpdateTransactionDialog>("Update Transaction", parameters);
+
+        // Check if result is not null and of the expected type
+        if (result is FinancialTransaction newTransaction)
+        {
+            // Add the new transaction to the collection
+            transactions.Add(newTransaction);
+
+            // Update the UI
+            StateHasChanged();
+        }
+        else
+        {
+            // Handle cases where the dialog returns null or unexpected data
             Console.WriteLine("No valid transaction was returned from the dialog.");
         }
     }
