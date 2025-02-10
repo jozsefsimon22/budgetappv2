@@ -7,14 +7,9 @@ namespace Shared.Enums
     {
         [Description("Yearly")]
         Yearly,
-        
-        // [Display(Name = "Monthly")]
         Monthly,
-        
-        // [Display(Name = "Weekly")]
         Weekly,
-
-        // [Display(Name = "One Time")]
+        [Display(Name = "One Time")]
         OneTime
     }
 }
