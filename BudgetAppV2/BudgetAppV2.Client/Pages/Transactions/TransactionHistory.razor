@@ -3,8 +3,10 @@
 @using Shared.Entities
 @using Shared.Enums
 @using System.Globalization
+@using BudgetAppV2.Client.Pages.Dialogs
 
 @inject NavigationManager Navigation
+@inject DialogService DialogService
 @* @inject HttpClient Http *@
 
 <h3>Transaction History</h3>
@@ -23,7 +25,8 @@ else
             <p><strong>End Date:</strong> @(transaction.EndDate?.ToString("MM/dd/yyyy") ?? "Ongoing")</p>
         </div>
         <div>
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Update"></RadzenButton>
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Update"
+                          Click="@OpenEditTransactionHistory(transaction)"></RadzenButton>
         </div>
     </div>
 
@@ -97,10 +100,16 @@ else
         }
     };
 
+    // Used in the chart
     class DataItem
     {
         public string Date { get; set; }
         public double Revenue { get; set; }
+    }
+
+    async Task OpenEditTransactionHistory()
+    {
+        var result = await DialogService.OpenAsync<EditTransactionHistory>("Update Transaction History", null);
     }
 
     private List<DataItem> DisplayDataGenerator(List<FinancialTransactionHistory> history)

@@ -1,0 +1,103 @@
+﻿@using Shared.Entities
+@inject DialogService DialogService
+
+<RadzenDialog @visible="showEditDialog">
+    <Header Template>
+        <h3>Edit History Entry - @currentTransaction.Name</h3>
+    </Header>
+
+    @* <Content Template> *@
+        <RadzenTemplateForm TItem="FinancialTransaction">
+            <div class="grid gap-4">
+                <RadzenNumeric Label="Amount"
+                               @bind-Value="@currentTransaction.CurrentAmount"
+                               Style="width: 100%"
+                               Min="1"/>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <RadzenDatePicker Label="Start Date"
+                                      @bind-Value="@currentTransaction.StartDate"
+                                      ReadOnly="true"/>
+
+                    <div>
+                        @* <RadzenCheckBox @bind-Value="@isOngoing" *@
+                        @*                 Label="Ongoing" *@
+                        @* /> *@
+                        <RadzenDatePicker Label="End Date"
+                                          @bind-Value="@currentTransaction.EndDate"
+                                          Disabled="@isOngoing"
+                                          DateFormat="dd/MM/yyyy"
+                                          MinDate="@currentTransaction.StartDate"/>
+                    </div>
+                </div>
+            </div>
+        </RadzenTemplateForm>
+    @* </Content> *@
+
+    <Footer Template>
+        @* <RadzenButton Text="Save" Click="@SaveChanges" Disabled="@(!IsFormValid())"/> *@
+        @* <RadzenButton Text="Cancel" Click="@CloseDialog" ButtonStyle="ButtonStyle.Secondary"/> *@
+        <RadzenButton Text="Save"/>
+        <RadzenButton Text="Cancel"/>
+    </Footer>
+</RadzenDialog>
+
+@code {
+    [Parameter] public FinancialTransaction currentTransaction { get; set; } = new();
+    private bool isOngoing = true;
+    private bool showEditDialog = true;
+
+    protected override void OnInitialized()
+    {
+        // Initialize ongoing state based on existing end date
+        isOngoing = !currentTransaction.EndDate.HasValue;
+    }
+
+    void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(currentTransaction.Name) || currentTransaction.CurrentAmount <= 0)
+        {
+            // Add error handling or validation messages here if needed
+            return;
+        }
+
+        // Pass the transaction back to the parent
+        DialogService.Close(currentTransaction);
+    }
+
+    // private void OnOngoingChanged()
+    // {
+    //     if (isOngoing)
+    //     {
+    //         // Set end date to null when marking as ongoing
+    //         currentTransaction.EndDate = null;
+    //     }
+    //     else
+    //     {
+    //         // Set default end date to today when unchecking ongoing
+    //         currentTransaction.EndDate = new DateOnly();
+    //     }
+    // }
+
+    // private bool IsFormValid()
+    // {
+    //     // Validate amount and dates
+    //     return true;
+    // }
+
+    // private void SaveChanges()
+    // {
+    //     if (IsFormValid())
+    //     {
+    //         // Add your save logic here
+    //         showEditDialog = false;
+    //         StateHasChanged();
+    //     }
+    // }
+
+    // private void CloseDialog()
+    // {
+    //     showEditDialog = false;
+    //     StateHasChanged();
+    // }
+}
