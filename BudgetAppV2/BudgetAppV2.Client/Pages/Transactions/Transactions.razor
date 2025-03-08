@@ -35,14 +35,16 @@
                 @if (transaction.IsRecurring)
                 {
                     <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="pageview"
-                                  Click="@(args => ViewHistory(transaction.Id))"></RadzenButton>
+                                  Click="@(args => ViewHistory(transaction.Id))">
+                    </RadzenButton>
                 }
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn>
             <Template Context="transaction">
                 <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit"
-                              Click="@(args => OpenUpdateTransactionDialog(transaction))"></RadzenButton>
+                              Click="@(args => OpenUpdateTransactionDialog(transaction))">
+                </RadzenButton>
             </Template>
         </RadzenDataGridColumn>
     </Columns>

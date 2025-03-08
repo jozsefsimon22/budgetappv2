@@ -33,10 +33,17 @@
             <ValidationMessage For="() => Transaction.TransactionType"/>
         </div>
 
+        <!-- Start Date Picker -->
+        <div>
+            <label>@_startDateLabel</label>
+            <RadzenDatePicker @bind-Value="Transaction.StartDate" DateFormat="MM/dd/yyyy" Placeholder="Select start date"
+                              Style="width: 100%;"/>
+        </div>
+
         <!-- IsRecurring Checkbox -->
         <div>
             <label style="display: flex; align-items: center;">
-                <RadzenCheckBox @bind-Value="Transaction.IsRecurring"/>
+                <RadzenCheckBox @bind-Value="Transaction.IsRecurring" />
                 <span style="margin-left: 1rem">Is Recurring</span>
             </label>
         </div>
@@ -57,13 +64,6 @@
                 <ValidationMessage For="() => Transaction.TransactionFrequency"/>
             </div>
 
-            <!-- Start Date Picker -->
-            <div>
-                <label>Start Date</label>
-                <RadzenDatePicker @bind-Value="Transaction.StartDate" DateFormat="MM/dd/yyyy" Placeholder="Select start date"
-                                  Style="width: 100%;"/>
-                <ValidationMessage For="() => Transaction.StartDate"/>
-            </div>
 
             <!-- End Date Picker -->
             <div>
@@ -95,11 +95,12 @@
 
 @code {
     [Parameter] public FinancialTransaction Transaction { get; set; } = new();
-    
+    private string _startDateLabel = "Start Date";
+
     // Enum data sources
     readonly IEnumerable<TransactionType> _transactionTypes = Enum.GetValues(typeof(TransactionType)).Cast<TransactionType>();
     readonly IEnumerable<TransactionFrequency> _transactionFrequencies = Enum.GetValues(typeof(TransactionFrequency)).Cast<TransactionFrequency>().Where(tf => tf != TransactionFrequency.OneTime);
-
+    
     void Submit()
     {
         if (string.IsNullOrWhiteSpace(Transaction.Name) || Transaction.CurrentAmount <= 0)

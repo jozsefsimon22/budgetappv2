@@ -17,45 +17,56 @@
 }
 else
 {
-    <div style="display: flex; flex-direction: row; align-items: end; justify-content: space-between; padding: 10px; box-sizing: border-box">
-        <div>
-            <h4>@_transaction.Name</h4>
-            <p><strong>Current Amount:</strong> @_transaction.CurrentAmount.ToString("C")</p>
-            <p><strong>Start Date:</strong> @_transaction.StartDate.ToString("MM/dd/yyyy")</p>
-            <p><strong>End Date:</strong> @(_transaction.EndDate?.ToString("MM/dd/yyyy") ?? "Ongoing")</p>
+    <div>
+        <div style="display: flex; flex-direction: row; align-items: end; justify-content: space-between; padding: 10px; box-sizing: border-box">
+            <div>
+                <h4>@_transaction.Name</h4>
+                <p>
+                    <strong>Current Amount:</strong> @_transaction.CurrentAmount.ToString("C")
+                </p>
+                <p>
+                    <strong>Start Date:</strong> @_transaction.StartDate.ToString("MM/dd/yyyy")
+                </p>
+                <p>
+                    <strong>End Date:</strong> @(_transaction.EndDate?.ToString("MM/dd/yyyy") ?? "Ongoing")
+                </p>
+            </div>
+            <div>
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Update"
+                              Click="@OpenEditTransactionHistory">
+                </RadzenButton>
+            </div>
         </div>
-        <div>
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Update"
-                          Click="@OpenEditTransactionHistory"></RadzenButton>
-        </div>
+
+        <RadzenDataGrid Data="@_transaction.History" TItem="FinancialTransactionHistory" ShowPagingSummary="true"
+                        AllowPaging="false" PageSize="10" Style="height: 400px">
+            <Columns>
+                <RadzenDataGridColumn Property="Amount" Title="Amount" FormatString="{0:C}" Width="200px"/>
+                <RadzenDataGridColumn Property="StartDate" Title="Start Date" FormatString="{0:MM/dd/yyyy}" Width="160px"/>
+                <RadzenDataGridColumn Property="EndDate" Title="End Date" FormatString="{0:MM/dd/yyyy}" Width="160px"/>
+            </Columns>
+        </RadzenDataGrid>
+
+        <RadzenChart Style="border-top: 1px solid lightgray; margin-top: 2rem">
+            <RadzenChartTooltipOptions Shared="@sharedTooltip"/>
+            <RadzenLineSeries Smooth="@smooth" Data="@displayData" CategoryProperty="Date" Title="Amount"
+                              LineType="LineType.Solid" ValueProperty="Revenue">
+                <RadzenMarkers Visible="@showMarkers" MarkerType="MarkerType.Square"/>
+                <RadzenSeriesDataLabels Visible="@showDataLabels"/>
+            </RadzenLineSeries>
+            <RadzenCategoryAxis Padding="20" Step="50" LabelAutoRotation="45" Max="10"/>
+            <RadzenValueAxis Formatter="@FormatAsGbp">
+                <RadzenGridLines Visible="true"/>
+                <RadzenAxisTitle Text="Amount"/>
+            </RadzenValueAxis>
+        </RadzenChart>
+
+
+        <RadzenButton Style="margin-top: 2rem" ButtonStyle="ButtonStyle.Secondary" Icon="arrow_back" Text="Back"
+                      Click="GoBack"/>
+
     </div>
-
-    <RadzenDataGrid Data="@_transaction.History" TItem="FinancialTransactionHistory" ShowPagingSummary="true"
-                    AllowPaging="false" PageSize="10" Style="height: 400px">
-        <Columns>
-            <RadzenDataGridColumn Property="Amount" Title="Amount" FormatString="{0:C}" Width="200px"/>
-            <RadzenDataGridColumn Property="StartDate" Title="Start Date" FormatString="{0:MM/dd/yyyy}" Width="160px"/>
-            <RadzenDataGridColumn Property="EndDate" Title="End Date" FormatString="{0:MM/dd/yyyy}" Width="160px"/>
-        </Columns>
-    </RadzenDataGrid>
-
-    <RadzenChart Style="border-top: 1px solid lightgray; margin-top: 2rem">
-        <RadzenChartTooltipOptions Shared="@sharedTooltip"/>
-        <RadzenLineSeries Smooth="@smooth" Data="@displayData" CategoryProperty="Date" Title="Amount"
-                          LineType="LineType.Solid" ValueProperty="Revenue">
-            <RadzenMarkers Visible="@showMarkers" MarkerType="MarkerType.Square"/>
-            <RadzenSeriesDataLabels Visible="@showDataLabels"/>
-        </RadzenLineSeries>
-        <RadzenCategoryAxis Padding="20" Step="50" LabelAutoRotation="45" Max="10"/>
-        <RadzenValueAxis Formatter="@FormatAsGbp">
-            <RadzenGridLines Visible="true"/>
-            <RadzenAxisTitle Text="Amount"/>
-        </RadzenValueAxis>
-    </RadzenChart>
 }
-
-<RadzenButton Style="margin-top: 2rem" ButtonStyle="ButtonStyle.Secondary" Icon="arrow_back" Text="Back"
-              Click="GoBack"/>
 
 @code {
 
@@ -109,10 +120,10 @@ else
 
     async Task OpenEditTransactionHistory()
     {
-        var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", new Dictionary<string, object>(){{"CurrentTransaction", _transaction}});
+        var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", new Dictionary<string, object>() { { "CurrentTransaction", _transaction } });
         // var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", null);
     }
-    
+
 
     private List<DataItem> DisplayDataGenerator(List<FinancialTransactionHistory> history)
     {
