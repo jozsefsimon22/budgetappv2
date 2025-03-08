@@ -1,5 +1,4 @@
-﻿@* @page "/transaction-history/{TransactionId:guid}" *@
-@page "/transaction-history/"
+﻿@page "/transaction-history/{TransactionId:guid}"
 @using Shared.Entities
 @using Shared.Enums
 @using System.Globalization
@@ -70,7 +69,7 @@ else
 
 @code {
 
-    // [Parameter] public Guid TransactionId { get; set; }
+    [Parameter] public Guid TransactionId { get; set; }
     private readonly FinancialTransaction? _transaction = new FinancialTransaction
     {
         Id = Guid.NewGuid(),

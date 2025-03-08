@@ -106,7 +106,7 @@
 
     async Task ViewHistory(Guid transactionId)
     {
-        navigationManager.NavigateTo($"/transaction-history/");
+        navigationManager.NavigateTo($"/transaction-history/{transactionId}");
     }
 
     void Reset()
