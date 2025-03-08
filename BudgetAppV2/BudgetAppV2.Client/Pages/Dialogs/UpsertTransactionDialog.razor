@@ -68,13 +68,25 @@
             <!-- End Date Picker -->
             <div>
                 <label>End Date (Optional)</label>
-                <RadzenDatePicker @bind-Value="Transaction.EndDate" DateFormat="MM/dd/yyyy" Placeholder="Select end date"
-                                  Style="width: 100%;"/>
+                <RadzenDatePicker @bind-Value="Transaction.EndDate"
+                                  Name="EndDate"
+                                  DateFormat="MM/dd/yyyy"
+                                  Placeholder="Select end date"
+                                  AllowClear="true"
+                                  Style="width: 100%; display: block"/>
+                <RadzenCompareValidator
+                    Value="Transaction.StartDate"
+                    Operator="CompareOperator.GreaterThan"
+                    Component="EndDate"
+                    Visible="@(Transaction.EndDate != null)"
+                    Style="position: absolute; margin-bottom: 1rem"
+                    Popup="true"
+                    Text="The End Date can't be before the start date."/>
             </div>
         }
 
         <!-- Buttons -->
-        <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Add" Type="submit" Style="margin-right: 1rem;"/>
             <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@Cancel"/>
         </div>

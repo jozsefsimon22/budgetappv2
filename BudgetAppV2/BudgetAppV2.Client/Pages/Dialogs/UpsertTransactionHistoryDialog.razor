@@ -10,7 +10,7 @@
                        @bind-Value="@CurrentTransaction.CurrentAmount"
                        Style="width: 100%"
                        Min="1"/>
-        
+
         <!-- Start Date Picker -->
         <div>
             <label>Start Date</label>
@@ -19,7 +19,7 @@
                               Placeholder="Select start date"
                               Min="@_minStartDate"
                               Style="width: 100%;"
-                              InitialViewDate="DateTime.Today"/>
+                              InitialViewDate="new DateTime(2040,06,01)"/>
             <ValidationMessage For="() => CurrentTransaction.StartDate"/>
         </div>
 
@@ -27,14 +27,24 @@
         <div>
             <label>End Date (Optional)</label>
             <RadzenDatePicker @bind-Value="CurrentTransaction.EndDate"
+                              Name="EndDate"
                               DateFormat="MM/dd/yyyy"
                               Placeholder="Select end date"
                               AllowClear="true"
-                              Style="width: 100%;"/>
+                              Min="@_minStartDate"
+                              Style="width: 100%; display: block"/>
+            <RadzenCompareValidator
+                Value="CurrentTransaction.StartDate"
+                Operator="CompareOperator.GreaterThan"
+                Component="EndDate"
+                Visible="@(CurrentTransaction.EndDate != null)"
+                Style="position: absolute; margin-bottom: 1rem"
+                Popup="true"
+                Text="The End Date can't be before the start date."/>
         </div>
 
         <!-- Buttons -->
-        <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
             <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Add" Type="submit" Style="margin-right: 1rem;"/>
             <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@Cancel"/>
         </div>
@@ -46,12 +56,14 @@
 
     [Parameter]
     public FinancialTransaction CurrentTransaction { get; set; } = new FinancialTransaction()
-    { Id = Guid.NewGuid(), TransactionType = TransactionType.Expense, IsRecurring = true, TransactionFrequency = TransactionFrequency.Monthly,
+    {
+        Id = Guid.NewGuid(), TransactionType = TransactionType.Expense, IsRecurring = true, TransactionFrequency = TransactionFrequency.Monthly,
         Name = "Netflix Subscription",
         CurrentAmount = 10.00,
-        StartDate = new DateOnly(2023, 1, 1),
+        StartDate = new DateOnly(2025, 3, 4),
         EndDate = null,
-        History = [
+        History =
+        [
             new FinancialTransactionHistory { Amount = 12.99, StartDate = new DateOnly(2021, 1, 1), EndDate = new DateOnly(2021, 2, 28) },
             new FinancialTransactionHistory { Amount = 13.99, StartDate = new DateOnly(2021, 3, 1), EndDate = new DateOnly(2021, 4, 30) },
             new FinancialTransactionHistory { Amount = 24.99, StartDate = new DateOnly(2021, 5, 1), EndDate = new DateOnly(2021, 6, 30) },
@@ -76,7 +88,7 @@
             new FinancialTransactionHistory { Amount = 156.99, StartDate = new DateOnly(2024, 7, 1), EndDate = new DateOnly(2024, 8, 31) },
             new FinancialTransactionHistory { Amount = 158.99, StartDate = new DateOnly(2024, 9, 1), EndDate = new DateOnly(2024, 10, 31) },
             new FinancialTransactionHistory { Amount = 159.99, StartDate = new DateOnly(2024, 11, 1), EndDate = new DateOnly(2024, 12, 31) },
-            new FinancialTransactionHistory { Amount = 173.99, StartDate = new DateOnly(2025, 3, 4), EndDate = null}
+            new FinancialTransactionHistory { Amount = 173.99, StartDate = new DateOnly(2025, 3, 4), EndDate = null }
         ]
     };
 
