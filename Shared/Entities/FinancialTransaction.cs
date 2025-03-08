@@ -22,5 +22,5 @@ public class FinancialTransaction
 
     public DateOnly? EndDate { get; set; }
 
-    public IEnumerable<FinancialTransactionHistory> History { get; init; } = new List<FinancialTransactionHistory>();
+    public List<FinancialTransactionHistory> History { get; init; } = [];
 }

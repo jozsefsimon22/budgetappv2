@@ -1,0 +1,113 @@
+﻿@using Shared.Entities
+@using Shared.Enums
+@inject DialogService DialogService
+
+<RadzenTemplateForm TItem="FinancialTransaction" Data="@CurrentTransaction" Submit="@Submit">
+
+    <div class="p-4" style="display: flex; flex-direction: column; gap: 1rem;">
+        <label>Amount</label>
+        <RadzenNumeric Label="Amount"
+                       @bind-Value="@CurrentTransaction.CurrentAmount"
+                       Style="width: 100%"
+                       Min="1"/>
+        
+        <!-- Start Date Picker -->
+        <div>
+            <label>Start Date</label>
+            <RadzenDatePicker @bind-Value="CurrentTransaction.StartDate"
+                              DateFormat="MM/dd/yyyy"
+                              Placeholder="Select start date"
+                              Min="@_minStartDate"
+                              Style="width: 100%;"
+                              InitialViewDate="DateTime.Today"/>
+            <ValidationMessage For="() => CurrentTransaction.StartDate"/>
+        </div>
+
+        <!-- End Date Picker -->
+        <div>
+            <label>End Date (Optional)</label>
+            <RadzenDatePicker @bind-Value="CurrentTransaction.EndDate"
+                              DateFormat="MM/dd/yyyy"
+                              Placeholder="Select end date"
+                              AllowClear="true"
+                              Style="width: 100%;"/>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Add" Type="submit" Style="margin-right: 1rem;"/>
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@Cancel"/>
+        </div>
+    </div>
+
+</RadzenTemplateForm>
+
+@code {
+
+    [Parameter]
+    public FinancialTransaction CurrentTransaction { get; set; } = new FinancialTransaction()
+    { Id = Guid.NewGuid(), TransactionType = TransactionType.Expense, IsRecurring = true, TransactionFrequency = TransactionFrequency.Monthly,
+        Name = "Netflix Subscription",
+        CurrentAmount = 10.00,
+        StartDate = new DateOnly(2023, 1, 1),
+        EndDate = null,
+        History = [
+            new FinancialTransactionHistory { Amount = 12.99, StartDate = new DateOnly(2021, 1, 1), EndDate = new DateOnly(2021, 2, 28) },
+            new FinancialTransactionHistory { Amount = 13.99, StartDate = new DateOnly(2021, 3, 1), EndDate = new DateOnly(2021, 4, 30) },
+            new FinancialTransactionHistory { Amount = 24.99, StartDate = new DateOnly(2021, 5, 1), EndDate = new DateOnly(2021, 6, 30) },
+            new FinancialTransactionHistory { Amount = 25.99, StartDate = new DateOnly(2021, 7, 1), EndDate = new DateOnly(2021, 8, 31) },
+            new FinancialTransactionHistory { Amount = 26.99, StartDate = new DateOnly(2021, 9, 1), EndDate = new DateOnly(2021, 10, 31) },
+            new FinancialTransactionHistory { Amount = 47.99, StartDate = new DateOnly(2021, 11, 1), EndDate = new DateOnly(2021, 12, 31) },
+            new FinancialTransactionHistory { Amount = 68.99, StartDate = new DateOnly(2022, 1, 1), EndDate = new DateOnly(2022, 2, 28) },
+            new FinancialTransactionHistory { Amount = 69.99, StartDate = new DateOnly(2022, 3, 1), EndDate = new DateOnly(2022, 4, 30) },
+            new FinancialTransactionHistory { Amount = 70.99, StartDate = new DateOnly(2022, 5, 1), EndDate = new DateOnly(2022, 6, 30) },
+            new FinancialTransactionHistory { Amount = 73.99, StartDate = new DateOnly(2022, 7, 1), EndDate = new DateOnly(2022, 8, 31) },
+            new FinancialTransactionHistory { Amount = 78.99, StartDate = new DateOnly(2022, 9, 1), EndDate = new DateOnly(2022, 10, 31) },
+            new FinancialTransactionHistory { Amount = 82.99, StartDate = new DateOnly(2022, 11, 1), EndDate = new DateOnly(2022, 12, 31) },
+            new FinancialTransactionHistory { Amount = 91.99, StartDate = new DateOnly(2023, 1, 1), EndDate = new DateOnly(2023, 2, 28) },
+            new FinancialTransactionHistory { Amount = 105.99, StartDate = new DateOnly(2023, 3, 1), EndDate = new DateOnly(2023, 4, 30) },
+            new FinancialTransactionHistory { Amount = 106.99, StartDate = new DateOnly(2023, 5, 1), EndDate = new DateOnly(2023, 6, 30) },
+            new FinancialTransactionHistory { Amount = 107.99, StartDate = new DateOnly(2023, 7, 1), EndDate = new DateOnly(2023, 8, 31) },
+            new FinancialTransactionHistory { Amount = 108.99, StartDate = new DateOnly(2023, 9, 1), EndDate = new DateOnly(2023, 10, 31) },
+            new FinancialTransactionHistory { Amount = 123.99, StartDate = new DateOnly(2023, 11, 1), EndDate = new DateOnly(2023, 12, 31) },
+            new FinancialTransactionHistory { Amount = 124.99, StartDate = new DateOnly(2024, 1, 1), EndDate = new DateOnly(2024, 2, 29) },
+            new FinancialTransactionHistory { Amount = 144.99, StartDate = new DateOnly(2024, 3, 1), EndDate = new DateOnly(2024, 4, 30) },
+            new FinancialTransactionHistory { Amount = 152.99, StartDate = new DateOnly(2024, 5, 1), EndDate = new DateOnly(2024, 6, 30) },
+            new FinancialTransactionHistory { Amount = 156.99, StartDate = new DateOnly(2024, 7, 1), EndDate = new DateOnly(2024, 8, 31) },
+            new FinancialTransactionHistory { Amount = 158.99, StartDate = new DateOnly(2024, 9, 1), EndDate = new DateOnly(2024, 10, 31) },
+            new FinancialTransactionHistory { Amount = 159.99, StartDate = new DateOnly(2024, 11, 1), EndDate = new DateOnly(2024, 12, 31) },
+            new FinancialTransactionHistory { Amount = 173.99, StartDate = new DateOnly(2025, 3, 4), EndDate = null}
+        ]
+    };
+
+    DateTime? _minStartDate = DateTime.MinValue;
+
+    protected override Task OnInitializedAsync()
+    {
+        if (CurrentTransaction.History.Any())
+        {
+            _minStartDate = CurrentTransaction.History.Max(t => t.StartDate).ToDateTime(TimeOnly.MinValue);
+        }
+
+        return base.OnInitializedAsync();
+    }
+
+    void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentTransaction.Name) || CurrentTransaction.CurrentAmount <= 0)
+        {
+            // Add error handling or validation messages here if needed
+            return;
+        }
+
+        // Pass the transaction back to the parent
+        DialogService.Close(CurrentTransaction);
+    }
+
+    void Cancel()
+    {
+        // Close dialog without returning a value
+        DialogService.Close(null);
+    }
+
+}
