@@ -1,3 +1,5 @@
+global using Shared.Entities;
+global using Shared.Enums;
 using BudgetAppV2.Client.Pages;
 using BudgetAppV2.Components;
 using Radzen;
@@ -17,7 +19,14 @@ builder.Services.AddRadzenCookieThemeService(options =>
     options.Duration = TimeSpan.FromDays(365); // The duration of the cookie
 });
 
+builder.Services.AddControllersWithViews();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
 var app = builder.Build();
+
+app.UseSwaggerUI();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -31,10 +40,15 @@ else
     app.UseHsts();
 }
 
+app.UseSwagger();
 app.UseHttpsRedirection();
+
+// app.UseRouting();
+app.MapControllers();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

@@ -3,12 +3,13 @@
 @using Shared.Enums
 @using BudgetAppV2.Client.Pages.Dialogs
 @inject DialogService DialogService
-@inject NavigationManager navigationManager
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
 
 <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
                 FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" PageSize="20" AllowPaging="true"
                 PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                Data="@transactions" LogicalFilterOperator="LogicalFilterOperator.Or"
+                Data="@_transactions" LogicalFilterOperator="LogicalFilterOperator.Or"
                 SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedTransaction>
     <HeaderTemplate>
         <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Add New Transaction"
@@ -54,7 +55,19 @@
 @code {
     List<FinancialTransaction> financialTransactionToInsert = new List<FinancialTransaction>();
     List<FinancialTransaction> financialTransactionToUpdate = new List<FinancialTransaction>();
-    IList<FinancialTransaction> transactions = new List<FinancialTransaction>();
+    IList<FinancialTransaction> _transactions = new List<FinancialTransaction>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Http.GetFromJsonAsync<List<FinancialTransaction>>("api/Transaction");
+        if (result != null)
+        {
+            _transactions = result;
+        }
+        
+        
+    }
+
 
     async Task OpenAddTransactionDialog()
     {
@@ -65,7 +78,7 @@
         if (result is FinancialTransaction newTransaction)
         {
             // Add the new transaction to the collection
-            transactions.Add(newTransaction);
+            _transactions.Add(newTransaction);
 
             // Update the UI
             StateHasChanged();
@@ -92,7 +105,7 @@
         if (result is FinancialTransaction newTransaction)
         {
             // Add the new transaction to the collection
-            transactions.Add(newTransaction);
+            _transactions.Add(newTransaction);
 
             // Update the UI
             StateHasChanged();
@@ -106,7 +119,7 @@
 
     async Task ViewHistory(Guid transactionId)
     {
-        navigationManager.NavigateTo($"/transaction-history/{transactionId}");
+        NavigationManager.NavigateTo($"/transaction-history/{transactionId}");
     }
 
     void Reset()
@@ -127,81 +140,7 @@
         // await 
     }
 
-    protected override Task OnInitializedAsync()
-    {
-        // TODO: Create transaction mock data and add it to the gird. 
-        transactions = new List<FinancialTransaction>
-        {
-            new FinancialTransaction
-            {
-                Id = Guid.NewGuid(),
-                TransactionType = TransactionType.Expense,
-                IsRecurring = true,
-                TransactionFrequency = TransactionFrequency.Monthly,
-                Name = "Netflix Subscription",
-                CurrentAmount = 15.99,
-                StartDate = new DateOnly(2023, 1, 1),
-                EndDate = null
-            },
-            new FinancialTransaction
-            {
-                Id = Guid.NewGuid(),
-                TransactionType = TransactionType.Income,
-                IsRecurring = true,
-                TransactionFrequency = TransactionFrequency.Monthly,
-                Name = "Salary",
-                CurrentAmount = 2500.00,
-                StartDate = new DateOnly(2022, 6, 15),
-                EndDate = null
-            },
-            new FinancialTransaction
-            {
-                Id = Guid.NewGuid(),
-                TransactionType = TransactionType.Expense,
-                IsRecurring = false,
-                TransactionFrequency = TransactionFrequency.OneTime,
-                Name = "New Laptop",
-                CurrentAmount = 1200.00,
-                StartDate = new DateOnly(2024, 2, 10),
-                EndDate = new DateOnly(2024, 2, 10)
-            },
-            new FinancialTransaction
-            {
-                Id = Guid.NewGuid(),
-                TransactionType = TransactionType.Income,
-                IsRecurring = false,
-                TransactionFrequency = TransactionFrequency.OneTime,
-                Name = "Freelance Project",
-                CurrentAmount = 800.00,
-                StartDate = new DateOnly(2024, 1, 15),
-                EndDate = null
-            },
-            new FinancialTransaction
-            {
-                Id = Guid.NewGuid(),
-                TransactionType = TransactionType.Expense,
-                IsRecurring = true,
-                TransactionFrequency = TransactionFrequency.Monthly,
-                Name = "Gym Membership",
-                CurrentAmount = 25.00,
-                StartDate = new DateOnly(2023, 3, 1),
-                EndDate = null
-            },
-            new FinancialTransaction
-            {
-                Id = Guid.NewGuid(),
-                TransactionType = TransactionType.Expense,
-                IsRecurring = false,
-                TransactionFrequency = TransactionFrequency.OneTime,
-                Name = "Concert Tickets",
-                CurrentAmount = 150.00,
-                StartDate = new DateOnly(2024, 5, 20),
-                EndDate = new DateOnly(2024, 5, 20)
-            }
-        };
 
-        return base.OnInitializedAsync();
-    }
 
     IList<FinancialTransaction> _selectedTransaction;
 
