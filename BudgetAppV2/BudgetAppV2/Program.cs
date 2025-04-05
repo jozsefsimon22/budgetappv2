@@ -1,12 +1,21 @@
 global using Shared.Entities;
 global using Shared.Enums;
+global using Microsoft.EntityFrameworkCore;
+global using BudgetAppV2.Data;
+global using BudgetAppV2.Services;
 using BudgetAppV2.Client.Pages;
 using BudgetAppV2.Components;
+using BudgetAppV2.Data;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
@@ -22,6 +31,11 @@ builder.Services.AddRadzenCookieThemeService(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHttpClient();
+
+//Register Custom Services
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 
 var app = builder.Build();
