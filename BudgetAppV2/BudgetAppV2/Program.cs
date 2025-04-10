@@ -5,7 +5,6 @@ global using BudgetAppV2.Data;
 global using BudgetAppV2.Services;
 using BudgetAppV2.Client.Pages;
 using BudgetAppV2.Components;
-using BudgetAppV2.Data;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,8 +16,8 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents();
+     .AddInteractiveServerComponents()
+     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddRadzenComponents();
 
@@ -35,8 +34,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
 //Register Custom Services
-builder.Services.AddScoped<ITransactionService, TransactionService>();
-
+builder.Services.AddScoped<IServerFinancialTransactionService, ServerServerFinancialTransactionService>();
 
 var app = builder.Build();
 

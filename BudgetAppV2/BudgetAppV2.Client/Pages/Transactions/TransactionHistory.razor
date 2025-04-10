@@ -1,12 +1,11 @@
 ﻿@page "/transaction-history/{TransactionId:guid}"
 @using Shared.Entities
-@using Shared.Enums
 @using System.Globalization
 @using BudgetAppV2.Client.Pages.Dialogs
-
 @inject NavigationManager Navigation
 @inject DialogService DialogService
-@* @inject HttpClient Http *@
+@inject IFinancialTransactionService FinancialTransactionService
+
 
 <h3>Transaction History</h3>
 
@@ -36,7 +35,7 @@ else
                 </RadzenButton>
             </div>
         </div>
-
+        
         <RadzenDataGrid Data="@_transaction.History" TItem="FinancialTransactionHistory" ShowPagingSummary="true"
                         AllowPaging="false" PageSize="10" Style="height: 400px">
             <Columns>
@@ -48,7 +47,7 @@ else
 
         <RadzenChart Style="border-top: 1px solid lightgray; margin-top: 2rem">
             <RadzenChartTooltipOptions Shared="@sharedTooltip"/>
-            <RadzenLineSeries Smooth="@smooth" Data="@displayData" CategoryProperty="Date" Title="Amount"
+            <RadzenLineSeries Smooth="@smooth" Data="@_displayData" CategoryProperty="Date" Title="Amount"
                               LineType="LineType.Solid" ValueProperty="Revenue">
                 <RadzenMarkers Visible="@showMarkers" MarkerType="MarkerType.Square"/>
                 <RadzenSeriesDataLabels Visible="@showDataLabels"/>
@@ -70,59 +69,32 @@ else
 @code {
 
     [Parameter] public Guid TransactionId { get; set; }
-    private readonly FinancialTransaction? _transaction = new FinancialTransaction
-    {
-        Id = Guid.NewGuid(),
-        TransactionType = TransactionType.Expense,
-        IsRecurring = true,
-        TransactionFrequency = TransactionFrequency.Monthly,
-        Name = "Netflix Subscription",
-        CurrentAmount = 20.00,
-        StartDate = new DateOnly(2025, 3, 4),
-        EndDate = null,
-        History =
-        [
-            new FinancialTransactionHistory { Amount = 12.99, StartDate = new DateOnly(2021, 1, 1), EndDate = new DateOnly(2021, 2, 28) },
-            new FinancialTransactionHistory { Amount = 13.99, StartDate = new DateOnly(2021, 3, 1), EndDate = new DateOnly(2021, 4, 30) },
-            new FinancialTransactionHistory { Amount = 24.99, StartDate = new DateOnly(2021, 5, 1), EndDate = new DateOnly(2021, 6, 30) },
-            new FinancialTransactionHistory { Amount = 25.99, StartDate = new DateOnly(2021, 7, 1), EndDate = new DateOnly(2021, 8, 31) },
-            new FinancialTransactionHistory { Amount = 26.99, StartDate = new DateOnly(2021, 9, 1), EndDate = new DateOnly(2021, 10, 31) },
-            new FinancialTransactionHistory { Amount = 47.99, StartDate = new DateOnly(2021, 11, 1), EndDate = new DateOnly(2021, 12, 31) },
-            new FinancialTransactionHistory { Amount = 68.99, StartDate = new DateOnly(2022, 1, 1), EndDate = new DateOnly(2022, 2, 28) },
-            new FinancialTransactionHistory { Amount = 69.99, StartDate = new DateOnly(2022, 3, 1), EndDate = new DateOnly(2022, 4, 30) },
-            new FinancialTransactionHistory { Amount = 70.99, StartDate = new DateOnly(2022, 5, 1), EndDate = new DateOnly(2022, 6, 30) },
-            new FinancialTransactionHistory { Amount = 73.99, StartDate = new DateOnly(2022, 7, 1), EndDate = new DateOnly(2022, 8, 31) },
-            new FinancialTransactionHistory { Amount = 78.99, StartDate = new DateOnly(2022, 9, 1), EndDate = new DateOnly(2022, 10, 31) },
-            new FinancialTransactionHistory { Amount = 82.99, StartDate = new DateOnly(2022, 11, 1), EndDate = new DateOnly(2022, 12, 31) },
-            new FinancialTransactionHistory { Amount = 91.99, StartDate = new DateOnly(2023, 1, 1), EndDate = new DateOnly(2023, 2, 28) },
-            new FinancialTransactionHistory { Amount = 105.99, StartDate = new DateOnly(2023, 3, 1), EndDate = new DateOnly(2023, 4, 30) },
-            new FinancialTransactionHistory { Amount = 106.99, StartDate = new DateOnly(2023, 5, 1), EndDate = new DateOnly(2023, 6, 30) },
-            new FinancialTransactionHistory { Amount = 107.99, StartDate = new DateOnly(2023, 7, 1), EndDate = new DateOnly(2023, 8, 31) },
-            new FinancialTransactionHistory { Amount = 108.99, StartDate = new DateOnly(2023, 9, 1), EndDate = new DateOnly(2023, 10, 31) },
-            new FinancialTransactionHistory { Amount = 123.99, StartDate = new DateOnly(2023, 11, 1), EndDate = new DateOnly(2023, 12, 31) },
-            new FinancialTransactionHistory { Amount = 124.99, StartDate = new DateOnly(2024, 1, 1), EndDate = new DateOnly(2024, 2, 29) },
-            new FinancialTransactionHistory { Amount = 144.99, StartDate = new DateOnly(2024, 3, 1), EndDate = new DateOnly(2024, 4, 30) },
-            new FinancialTransactionHistory { Amount = 152.99, StartDate = new DateOnly(2024, 5, 1), EndDate = new DateOnly(2024, 6, 30) },
-            new FinancialTransactionHistory { Amount = 156.99, StartDate = new DateOnly(2024, 7, 1), EndDate = new DateOnly(2024, 8, 31) },
-            new FinancialTransactionHistory { Amount = 158.99, StartDate = new DateOnly(2024, 9, 1), EndDate = new DateOnly(2024, 10, 31) },
-            new FinancialTransactionHistory { Amount = 159.99, StartDate = new DateOnly(2024, 11, 1), EndDate = new DateOnly(2024, 12, 31) },
-            new FinancialTransactionHistory { Amount = 173.99, StartDate = new DateOnly(2025, 1, 1), EndDate = DateOnly.FromDateTime(DateTime.Today) }
-        ]
-    };
 
-    // Used in the chart
+    private FinancialTransaction? _transaction;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await FinancialTransactionService.GetFinancialTransactionById(TransactionId);
+        _transaction = FinancialTransactionService.FinancialTransaction;
+
+        _displayData = DisplayDataGenerator(_transaction!.History);
+        _step = _displayData.Count > 20 ? 3 : 1;
+    }
+
+
     class DataItem
     {
-        public string Date { get; set; }
+        public string Date { get; set; } = string.Empty;
         public double Revenue { get; set; }
     }
 
     async Task OpenEditTransactionHistory()
     {
-        var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", new Dictionary<string, object>() { { "CurrentTransaction", _transaction } });
-        // var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", null);
+        if (_transaction != null)
+        {
+            var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", new Dictionary<string, object>() { { "CurrentTransaction", _transaction } });
+        }
     }
-
 
     private List<DataItem> DisplayDataGenerator(List<FinancialTransactionHistory> history)
     {
@@ -133,31 +105,20 @@ else
             output.Add(new DataItem
             {
                 Date = x.StartDate.ToString("MMM yyyy", CultureInfo.CurrentCulture),
-                Revenue = (double)x.Amount!
+                Revenue = x.Amount
             });
         });
 
         return output;
     }
 
-    List<DataItem> displayData = new List<DataItem>();
+    List<DataItem> _displayData = new List<DataItem>();
     int _step = 5;
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        // Simulate fetching transaction data from an API
-        // transaction = await Http.GetFromJsonAsync<FinancialTransaction>($"api/transactions/{TransactionId}");
-
-        displayData = DisplayDataGenerator((List<FinancialTransactionHistory>)_transaction!.History);
-        _step = displayData.Count > 20 ? 3 : 1;
-    }
 
     void GoBack()
     {
         Navigation.NavigateTo("/transactions");
     }
-
 
     //Test
     static string FormatAsGbp(object value)

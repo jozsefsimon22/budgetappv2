@@ -1,71 +1,72 @@
 ﻿@page "/transactions"
 @using Shared.Entities
-@using Shared.Enums
 @using BudgetAppV2.Client.Pages.Dialogs
+@inject IFinancialTransactionService FinancialTransactionService
 @inject DialogService DialogService
 @inject NavigationManager NavigationManager
-@inject HttpClient Http
 
-<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
-                FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" PageSize="20" AllowPaging="true"
-                PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                Data="@_transactions" LogicalFilterOperator="LogicalFilterOperator.Or"
-                SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedTransaction>
-    <HeaderTemplate>
-        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Add New Transaction"
-                      Click="@OpenAddTransactionDialog"/>
-    </HeaderTemplate>
-    <Columns>
-        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.TransactionType)" Title="Type Type" Width="160px"/>
-        <RadzenDataGridColumn Title="Recurring" Width="160px" TextAlign="TextAlign.Center">
-            <Template>
-                @((context.IsRecurring ? "Yes" : "No"))
-            </Template>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.TransactionFrequency)" Title="Frequency"
-                              Width="160px"/>
-        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.Name)" Title="Name" Width="200px"/>
-        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.CurrentAmount)" Title="Amount" Width="160px"
-                              TextAlign="TextAlign.Right" FormatString="{0:C}"/>
-        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.StartDate)" Title="Start Date" Width="160px"
-                              FormatString="{0:MM/dd/yyyy}"/>
-        <RadzenDataGridColumn Property="@nameof(FinancialTransaction.EndDate)" Title="End Date" Width="160px"
-                              FormatString="{0:MM/dd/yyyy}"/>
-        <RadzenDataGridColumn>
-            <Template Context="transaction">
-                @if (transaction.IsRecurring)
-                {
-                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="pageview"
-                                  Click="@(args => ViewHistory(transaction.Id))">
+
+@if (!FinancialTransactionService.FinancialTransactions.Any())
+{
+    <span>Loading....</span>
+}
+else
+{
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
+                    FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" PageSize="20" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                    Data="@FinancialTransactionService.FinancialTransactions" LogicalFilterOperator="LogicalFilterOperator.Or"
+                    SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedTransaction>
+        <HeaderTemplate>
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Add New Transaction"
+                          Click="@OpenAddTransactionDialog"/>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="@nameof(FinancialTransaction.TransactionType)" Title="Type Type" Width="160px"/>
+            <RadzenDataGridColumn Title="Recurring" Width="160px" TextAlign="TextAlign.Center">
+                <Template>
+                    @((context.IsRecurring ? "Yes" : "No"))
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="@nameof(FinancialTransaction.TransactionFrequency)" Title="Frequency"
+                                  Width="160px"/>
+            <RadzenDataGridColumn Property="@nameof(FinancialTransaction.Name)" Title="Name" Width="200px"/>
+            <RadzenDataGridColumn Property="@nameof(FinancialTransaction.CurrentAmount)" Title="Amount" Width="160px"
+                                  TextAlign="TextAlign.Right" FormatString="{0:C}"/>
+            <RadzenDataGridColumn Property="@nameof(FinancialTransaction.StartDate)" Title="Start Date" Width="160px"
+                                  FormatString="{0:MM/dd/yyyy}"/>
+            <RadzenDataGridColumn Property="@nameof(FinancialTransaction.EndDate)" Title="End Date" Width="160px"
+                                  FormatString="{0:MM/dd/yyyy}"/>
+            <RadzenDataGridColumn>
+                <Template Context="transaction">
+                    @if (transaction.IsRecurring)
+                    {
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="pageview"
+                                      Click="@(args => ViewHistory(transaction.Id))">
+                        </RadzenButton>
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn>
+                <Template Context="transaction">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit"
+                                  Click="@(args => OpenUpdateTransactionDialog(transaction))">
                     </RadzenButton>
-                }
-            </Template>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn>
-            <Template Context="transaction">
-                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit"
-                              Click="@(args => OpenUpdateTransactionDialog(transaction))">
-                </RadzenButton>
-            </Template>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+} 
 
 
 @code {
     List<FinancialTransaction> financialTransactionToInsert = new List<FinancialTransaction>();
     List<FinancialTransaction> financialTransactionToUpdate = new List<FinancialTransaction>();
-    IList<FinancialTransaction> _transactions = new List<FinancialTransaction>();
-    
+    // IList<FinancialTransaction> _transactions = new List<FinancialTransaction>();
+
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<List<FinancialTransaction>>("api/Transaction");
-        if (result != null)
-        {
-            _transactions = result;
-        }
-        
-        
+        await FinancialTransactionService.GetFinancialTransactions();
     }
 
 
@@ -77,9 +78,10 @@
         // Check if result is not null and of the expected type
         if (result is FinancialTransaction newTransaction)
         {
-            // Add the new transaction to the collection
-            _transactions.Add(newTransaction);
-
+            // Add the new transaction and fetch new list
+            await FinancialTransactionService.CreateFinancialTransaction(newTransaction);
+            await FinancialTransactionService.GetFinancialTransactions();
+            
             // Update the UI
             StateHasChanged();
         }
@@ -105,7 +107,7 @@
         if (result is FinancialTransaction newTransaction)
         {
             // Add the new transaction to the collection
-            _transactions.Add(newTransaction);
+            FinancialTransactionService.FinancialTransactions.Add(newTransaction);
 
             // Update the UI
             StateHasChanged();
@@ -139,7 +141,6 @@
         financialTransactionToUpdate.Add(financialTransaction);
         // await 
     }
-
 
 
     IList<FinancialTransaction> _selectedTransaction;
