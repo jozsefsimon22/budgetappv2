@@ -2,31 +2,31 @@
 @using Shared.Enums
 @inject DialogService DialogService
 
-<RadzenTemplateForm TItem="FinancialTransaction" Data="@CurrentTransaction" Submit="@Submit">
+<RadzenTemplateForm TItem="FinancialTransactionHistory" Data="@TransactionHistory" Submit="@Submit">
 
     <div class="p-4" style="display: flex; flex-direction: column; gap: 1rem;">
         <label>Amount</label>
         <RadzenNumeric Label="Amount"
-                       @bind-Value="@CurrentTransaction.CurrentAmount"
+                       @bind-Value="@TransactionHistory.Amount"
                        Style="width: 100%"
                        Min="1"/>
 
         <!-- Start Date Picker -->
         <div>
             <label>Start Date</label>
-            <RadzenDatePicker @bind-Value="CurrentTransaction.StartDate"
+            <RadzenDatePicker @bind-Value="TransactionHistory.StartDate"
                               DateFormat="MM/dd/yyyy"
                               Placeholder="Select start date"
                               Min="@_minStartDate"
                               Style="width: 100%;"
                               InitialViewDate="new DateTime(2040,06,01)"/>
-            <ValidationMessage For="() => CurrentTransaction.StartDate"/>
+            <ValidationMessage For="() => TransactionHistory.StartDate"/>
         </div>
 
         <!-- End Date Picker -->
         <div>
             <label>End Date (Optional)</label>
-            <RadzenDatePicker @bind-Value="CurrentTransaction.EndDate"
+            <RadzenDatePicker @bind-Value="TransactionHistory.EndDate"
                               Name="EndDate"
                               DateFormat="MM/dd/yyyy"
                               Placeholder="Select end date"
@@ -34,10 +34,10 @@
                               Min="@_minStartDate"
                               Style="width: 100%; display: block"/>
             <RadzenCompareValidator
-                Value="CurrentTransaction.StartDate"
+                Value="TransactionHistory.StartDate"
                 Operator="CompareOperator.GreaterThan"
                 Component="EndDate"
-                Visible="@(CurrentTransaction.EndDate != null)"
+                Visible="@(TransactionHistory.EndDate != null)"
                 Style="position: absolute; margin-bottom: 1rem"
                 Popup="true"
                 Text="The End Date can't be before the start date."/>
@@ -54,30 +54,27 @@
 
 @code {
 
-    [Parameter] public FinancialTransaction CurrentTransaction { get; set; }
+    [Parameter] public FinancialTransactionHistory TransactionHistory { get; set; } = new FinancialTransactionHistory();
+    [Parameter] public DateOnly MinDate { get; set; } = DateOnly.MinValue;
 
     DateTime? _minStartDate = DateTime.MinValue;
 
-    protected override Task OnInitializedAsync()
-    {
-        if (CurrentTransaction.History.Any())
-        {
-            _minStartDate = CurrentTransaction.History.Max(t => t.StartDate).ToDateTime(TimeOnly.MinValue);
-        }
 
-        return base.OnInitializedAsync();
+    protected override void OnParametersSet()
+    {
+        _minStartDate = MinDate.ToDateTime(TimeOnly.MinValue);
     }
 
     void Submit()
     {
-        if (string.IsNullOrWhiteSpace(CurrentTransaction.Name) || CurrentTransaction.CurrentAmount <= 0)
+        if (TransactionHistory.Amount <= 0)
         {
             // Add error handling or validation messages here if needed
             return;
         }
 
         // Pass the transaction back to the parent
-        DialogService.Close(CurrentTransaction);
+        DialogService.Close(TransactionHistory);
     }
 
     void Cancel()

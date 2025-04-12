@@ -19,7 +19,7 @@ public class TransactionController(IServerFinancialTransactionService serverFina
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ServiceResponse<FinancialTransaction>>> GetTransactionsById(Guid id)
     {
-        var result = await serverFinancialTransactionService.GetTransactionAsync(id);
+        var result = await serverFinancialTransactionService.GetTransactionByIdAsync(id);
         return Ok(result);
     }
 

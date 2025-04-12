@@ -5,38 +5,39 @@
 @inject NavigationManager Navigation
 @inject DialogService DialogService
 @inject IFinancialTransactionService FinancialTransactionService
+@inject IFinancialTransactionHistoryService FinancialTransactionHistoryService
 
 
 <h3>Transaction History</h3>
 
-@if (_transaction == null)
+@if (FinancialTransactionHistoryService.FinancialTransaction == null)
 {
-    <p>Loading...</p>
+    <span>Loading...</span>
 }
 else
 {
     <div>
         <div style="display: flex; flex-direction: row; align-items: end; justify-content: space-between; padding: 10px; box-sizing: border-box">
             <div>
-                <h4>@_transaction.Name</h4>
+                <h4>@FinancialTransactionHistoryService.FinancialTransaction.Name</h4>
                 <p>
-                    <strong>Current Amount:</strong> @_transaction.CurrentAmount.ToString("C")
+                    <strong>Current Amount:</strong> @FinancialTransactionHistoryService.FinancialTransaction.CurrentAmount.ToString("C")
                 </p>
                 <p>
-                    <strong>Start Date:</strong> @_transaction.StartDate.ToString("MM/dd/yyyy")
+                    <strong>Start Date:</strong> @FinancialTransactionHistoryService.FinancialTransaction.StartDate.ToString("MM/dd/yyyy")
                 </p>
                 <p>
-                    <strong>End Date:</strong> @(_transaction.EndDate?.ToString("MM/dd/yyyy") ?? "Ongoing")
+                    <strong>End Date:</strong> @(FinancialTransactionHistoryService.FinancialTransaction.EndDate?.ToString("MM/dd/yyyy") ?? "Ongoing")
                 </p>
             </div>
             <div>
                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Update"
-                              Click="@OpenEditTransactionHistory">
+                              Click="@AddTransactionHistory">
                 </RadzenButton>
             </div>
         </div>
-        
-        <RadzenDataGrid Data="@_transaction.History" TItem="FinancialTransactionHistory" ShowPagingSummary="true"
+
+        <RadzenDataGrid Data="@FinancialTransactionHistoryService.FinancialTransaction.History" TItem="FinancialTransactionHistory" ShowPagingSummary="true"
                         AllowPaging="false" PageSize="10" Style="height: 400px">
             <Columns>
                 <RadzenDataGridColumn Property="Amount" Title="Amount" FormatString="{0:C}" Width="200px"/>
@@ -70,14 +71,13 @@ else
 
     [Parameter] public Guid TransactionId { get; set; }
 
-    private FinancialTransaction? _transaction;
+    // private FinancialTransaction? _transaction;
 
     protected override async Task OnParametersSetAsync()
     {
-        await FinancialTransactionService.GetFinancialTransactionById(TransactionId);
-        _transaction = FinancialTransactionService.FinancialTransaction;
+        await FinancialTransactionHistoryService.GetFinancialTransactionById(TransactionId);
 
-        _displayData = DisplayDataGenerator(_transaction!.History);
+        _displayData = DisplayDataGenerator(FinancialTransactionHistoryService.FinancialTransaction.History);
         _step = _displayData.Count > 20 ? 3 : 1;
     }
 
@@ -88,12 +88,33 @@ else
         public double Revenue { get; set; }
     }
 
-    async Task OpenEditTransactionHistory()
+    async Task AddTransactionHistory()
     {
-        if (_transaction != null)
+        var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History");
+
+        if (result is FinancialTransactionHistory newTransactionHistory)
         {
-            var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", new Dictionary<string, object>() { { "CurrentTransaction", _transaction } });
+            Console.WriteLine("1st step");
+
+            await FinancialTransactionHistoryService.CreateFinancialTransactionHistory(TransactionId, newTransactionHistory);
+
+            Console.WriteLine("2nd step");
+
+            await FinancialTransactionHistoryService.GetFinancialTransactionById(TransactionId);
+            
+            Console.WriteLine("3d step");
+
+            _displayData = DisplayDataGenerator(FinancialTransactionHistoryService.FinancialTransaction.History);
+            _step = _displayData.Count > 20 ? 3 : 1;
+            
+            StateHasChanged();
         }
+        
+    }
+
+    async Task UpdateTransactionHistory(TransactionHistory history)
+    {
+        var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", new Dictionary<string, object>() { { "TransactionHistory", history } });
     }
 
     private List<DataItem> DisplayDataGenerator(List<FinancialTransactionHistory> history)

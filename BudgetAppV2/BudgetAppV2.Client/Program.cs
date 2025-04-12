@@ -18,5 +18,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 //Custom Services
 builder.Services.AddScoped<IFinancialTransactionService, FinancialTransactionService>();
+builder.Services.AddScoped<IFinancialTransactionHistoryService, FinancialTransactionHistoryService>();
 
 await builder.Build().RunAsync();

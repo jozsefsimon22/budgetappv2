@@ -35,6 +35,7 @@ builder.Services.AddHttpClient();
 
 //Register Custom Services
 builder.Services.AddScoped<IServerFinancialTransactionService, ServerServerFinancialTransactionService>();
+builder.Services.AddScoped<IFinancialTransactionHistoryService, FinancialTransactionHistoryService>();
 
 var app = builder.Build();
 
