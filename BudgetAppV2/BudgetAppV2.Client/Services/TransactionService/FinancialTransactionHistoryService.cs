@@ -3,6 +3,7 @@ namespace BudgetAppV2.Client.Services.TransactionService;
 public class FinancialTransactionHistoryService(HttpClient httpClient) : IFinancialTransactionHistoryService
 {
     public FinancialTransaction? FinancialTransaction { get; set; } = null;
+    public DateTime? FinancialTransactionHistoryMinDate { get; set; }
 
     public async Task<FinancialTransaction> CreateFinancialTransactionHistory(Guid financialTransactionId, FinancialTransactionHistory transactionHistory)
     {
@@ -22,6 +23,15 @@ public class FinancialTransactionHistoryService(HttpClient httpClient) : IFinanc
         if (result is { Data: not null })
         {
             FinancialTransaction = result.Data;
+        }
+    }
+
+    public async Task GetFinancialTransactionHistoryMinDate(Guid id)
+    {
+        var result = await httpClient.GetFromJsonAsync<ServiceResponse<DateTime>>($"api/FinancialTransactionHistory/{id}");
+        if (result is { Data: { } dateTime })
+        {
+            FinancialTransactionHistoryMinDate = dateTime;
         }
     }
 }

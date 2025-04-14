@@ -71,11 +71,10 @@ else
 
     [Parameter] public Guid TransactionId { get; set; }
 
-    // private FinancialTransaction? _transaction;
-
     protected override async Task OnParametersSetAsync()
     {
         await FinancialTransactionHistoryService.GetFinancialTransactionById(TransactionId);
+        await FinancialTransactionHistoryService.GetFinancialTransactionHistoryMinDate(TransactionId);
 
         _displayData = DisplayDataGenerator(FinancialTransactionHistoryService.FinancialTransaction.History);
         _step = _displayData.Count > 20 ? 3 : 1;
@@ -90,26 +89,26 @@ else
 
     async Task AddTransactionHistory()
     {
-        var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History");
+        var result =
+            await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", new Dictionary<string, object>()
+            {
+                { "MinStartDate", FinancialTransactionHistoryService.FinancialTransactionHistoryMinDate }
+            });
 
         if (result is FinancialTransactionHistory newTransactionHistory)
         {
-            Console.WriteLine("1st step");
-
             await FinancialTransactionHistoryService.CreateFinancialTransactionHistory(TransactionId, newTransactionHistory);
-
-            Console.WriteLine("2nd step");
 
             await FinancialTransactionHistoryService.GetFinancialTransactionById(TransactionId);
             
-            Console.WriteLine("3d step");
+            await FinancialTransactionHistoryService.GetFinancialTransactionHistoryMinDate(TransactionId);
+
 
             _displayData = DisplayDataGenerator(FinancialTransactionHistoryService.FinancialTransaction.History);
             _step = _displayData.Count > 20 ? 3 : 1;
-            
+
             StateHasChanged();
         }
-        
     }
 
     async Task UpdateTransactionHistory(TransactionHistory history)

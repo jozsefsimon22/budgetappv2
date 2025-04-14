@@ -2,9 +2,11 @@ namespace BudgetAppV2.Services;
 
 public class FinancialTransactionHistoryService(DataContext dbContext) : IFinancialTransactionHistoryService
 {
-    public async Task<ServiceResponse<FinancialTransaction>> AddHistoryEntryAsync(Guid transactionId, FinancialTransactionHistory transactionHistory)
+    public async Task<ServiceResponse<FinancialTransaction>> AddHistoryEntryAsync(Guid transactionId,
+        FinancialTransactionHistory transactionHistory)
     {
-        var transaction = await dbContext.FinancialTransactions.Include(h => h.History).FirstOrDefaultAsync(t => t.Id == transactionId);
+        var transaction = await dbContext.FinancialTransactions.Include(h => h.History)
+            .FirstOrDefaultAsync(t => t.Id == transactionId);
         if (transaction == null)
         {
             return new ServiceResponse<FinancialTransaction>
@@ -34,6 +36,35 @@ public class FinancialTransactionHistoryService(DataContext dbContext) : IFinanc
     public Task<ServiceResponse<FinancialTransactionHistory>> GetEntryByIdAsync(Guid historyId)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<ServiceResponse<DateTime>> GetMinStartDateAsync(Guid transactionId)
+    {
+        var transaction = await dbContext.FinancialTransactions.Include(h => h.History)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == transactionId);
+        if (transaction == null)
+        {
+            return new ServiceResponse<DateTime>
+            {
+                Success = false,
+                Message = "The transaction doesn't exist",
+            };
+        }
+
+        // Return new datetime object with MinValue
+        if (transaction.History.Count is 0)
+            return new ServiceResponse<DateTime>()
+            {
+                Data = new DateTime()
+            };
+
+        var minStartDate = transaction.History.Max(h => h.StartDate).ToDateTime(TimeOnly.MinValue);
+
+        return new ServiceResponse<DateTime>()
+        {
+            Data = minStartDate
+        };
     }
 
     public Task DeleteHistoryEntryAsync(Guid historyId)

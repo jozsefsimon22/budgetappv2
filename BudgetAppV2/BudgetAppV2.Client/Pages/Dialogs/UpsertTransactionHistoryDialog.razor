@@ -17,9 +17,9 @@
             <RadzenDatePicker @bind-Value="TransactionHistory.StartDate"
                               DateFormat="MM/dd/yyyy"
                               Placeholder="Select start date"
-                              Min="@_minStartDate"
+                              Min="@MinStartDate"
                               Style="width: 100%;"
-                              InitialViewDate="new DateTime(2040,06,01)"/>
+                              InitialViewDate="DateTime.Today"/>
             <ValidationMessage For="() => TransactionHistory.StartDate"/>
         </div>
 
@@ -31,7 +31,7 @@
                               DateFormat="MM/dd/yyyy"
                               Placeholder="Select end date"
                               AllowClear="true"
-                              Min="@_minStartDate"
+                              Min="@MinStartDate"
                               Style="width: 100%; display: block"/>
             <RadzenCompareValidator
                 Value="TransactionHistory.StartDate"
@@ -45,8 +45,8 @@
 
         <!-- Buttons -->
         <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Add" Type="submit" Style="margin-right: 1rem;"/>
             <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@Cancel"/>
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Add" Type="submit" Style="margin-right: 1rem;"/>
         </div>
     </div>
 
@@ -55,14 +55,11 @@
 @code {
 
     [Parameter] public FinancialTransactionHistory TransactionHistory { get; set; } = new FinancialTransactionHistory();
-    [Parameter] public DateOnly MinDate { get; set; } = DateOnly.MinValue;
-
-    DateTime? _minStartDate = DateTime.MinValue;
-
+    [Parameter] public DateTime MinStartDate { get; set; }
 
     protected override void OnParametersSet()
     {
-        _minStartDate = MinDate.ToDateTime(TimeOnly.MinValue);
+        // _minStartDate = MinDate.ToDateTime(TimeOnly.MinValue);
     }
 
     void Submit()
