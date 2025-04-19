@@ -8,7 +8,7 @@
 
 @if (!FinancialTransactionService.FinancialTransactions.Any())
 {
-    <span>Loading....</span>
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate"/>
 }
 else
 {
@@ -56,7 +56,7 @@ else
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-} 
+}
 
 
 @code {
@@ -80,7 +80,7 @@ else
             // Add the new transaction and fetch new list
             await FinancialTransactionService.CreateFinancialTransaction(newTransaction);
             await FinancialTransactionService.GetFinancialTransactions();
-            
+
             // Update the UI
             StateHasChanged();
         }

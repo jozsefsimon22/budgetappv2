@@ -4,7 +4,6 @@
 @using BudgetAppV2.Client.Pages.Dialogs
 @inject NavigationManager Navigation
 @inject DialogService DialogService
-@inject IFinancialTransactionService FinancialTransactionService
 @inject IFinancialTransactionHistoryService FinancialTransactionHistoryService
 
 
@@ -12,7 +11,7 @@
 
 @if (FinancialTransactionHistoryService.FinancialTransaction == null)
 {
-    <span>Loading...</span>
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate"/>
 }
 else
 {
@@ -37,36 +36,43 @@ else
             </div>
         </div>
 
-        <RadzenDataGrid Data="@FinancialTransactionHistoryService.FinancialTransaction.History" TItem="FinancialTransactionHistory" ShowPagingSummary="true"
-                        AllowPaging="false" PageSize="10" Style="height: 400px">
-            <Columns>
-                <RadzenDataGridColumn Property="Amount" Title="Amount" FormatString="{0:C}"/>
-                <RadzenDataGridColumn Property="StartDate" Title="Start Date" FormatString="{0:MM/dd/yyyy}"/>
-                <RadzenDataGridColumn Property="EndDate" Title="End Date" FormatString="{0:MM/dd/yyyy}"/>
-                <RadzenDataGridColumn>
-                <Template Context="history" >
-                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit"
-                        Click="@(args => UpdateTransactionHistory(history))">
-                    </RadzenButton>
-                </Template>
-                </RadzenDataGridColumn>
-            </Columns>
-        </RadzenDataGrid>
+        @if (FinancialTransactionHistoryService.FinancialTransaction.History?.Any() != true)
+        {
+            <p>No transaction history available.</p>
+        }
+        else
+        {
+            <RadzenDataGrid Data="@FinancialTransactionHistoryService.FinancialTransaction.History"
+                            TItem="FinancialTransactionHistory" ShowPagingSummary="true"
+                            AllowPaging="false" PageSize="10" Style="height: 400px">
+                <Columns>
+                    <RadzenDataGridColumn Property="Amount" Title="Amount" FormatString="{0:C}"/>
+                    <RadzenDataGridColumn Property="StartDate" Title="Start Date" FormatString="{0:MM/dd/yyyy}"/>
+                    <RadzenDataGridColumn Property="EndDate" Title="End Date" FormatString="{0:MM/dd/yyyy}"/>
+                    <RadzenDataGridColumn>
+                        <Template Context="history">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit"
+                                          Click="@(_ => UpdateTransactionHistory(history))">
+                            </RadzenButton>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
 
-        <RadzenChart Style="border-top: 1px solid lightgray; margin-top: 2rem">
-            <RadzenChartTooltipOptions Shared="@sharedTooltip"/>
-            <RadzenLineSeries Smooth="@smooth" Data="@_displayData" CategoryProperty="Date" Title="Amount"
-                              LineType="LineType.Solid" ValueProperty="Revenue">
-                <RadzenMarkers Visible="@showMarkers" MarkerType="MarkerType.Square"/>
-                <RadzenSeriesDataLabels Visible="@showDataLabels"/>
-            </RadzenLineSeries>
-            <RadzenCategoryAxis Padding="20" Step="50" LabelAutoRotation="45" Max="10"/>
-            <RadzenValueAxis Formatter="@FormatAsGbp">
-                <RadzenGridLines Visible="true"/>
-                <RadzenAxisTitle Text="Amount"/>
-            </RadzenValueAxis>
-        </RadzenChart>
-
+            <RadzenChart Style="border-top: 1px solid lightgray; margin-top: 2rem">
+                <RadzenChartTooltipOptions Shared="@SharedTooltip"/>
+                <RadzenLineSeries Smooth="@Smooth" Data="@_displayData" CategoryProperty="Date" Title="Amount"
+                                  LineType="LineType.Solid" ValueProperty="Revenue">
+                    <RadzenMarkers Visible="@ShowMarkers" MarkerType="MarkerType.Square"/>
+                    <RadzenSeriesDataLabels Visible="@ShowDataLabels"/>
+                </RadzenLineSeries>
+                <RadzenCategoryAxis Padding="20" Step="50" LabelAutoRotation="45" Max="10"/>
+                <RadzenValueAxis Formatter="@FormatAsGbp">
+                    <RadzenGridLines Visible="true"/>
+                    <RadzenAxisTitle Text="Amount"/>
+                </RadzenValueAxis>
+            </RadzenChart>
+        }
 
         <RadzenButton Style="margin-top: 2rem" ButtonStyle="ButtonStyle.Secondary" Icon="arrow_back" Text="Back"
                       Click="GoBack"/>
@@ -78,15 +84,13 @@ else
 
     [Parameter] public Guid TransactionId { get; set; }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        await FinancialTransactionHistoryService.GetFinancialTransactionById(TransactionId);
-        await FinancialTransactionHistoryService.GetFinancialTransactionHistoryMinDate(TransactionId);
-
-        _displayData = DisplayDataGenerator(FinancialTransactionHistoryService.FinancialTransaction.History);
-        _step = _displayData.Count > 20 ? 3 : 1;
-    }
-
+    //RadzenChart variables
+    List<DataItem> _displayData = [];
+    int _step = int.MinValue;
+    private const bool Smooth = true;
+    private const bool SharedTooltip = true;
+    private const bool ShowDataLabels = true;
+    private const bool ShowMarkers = true;
 
     class DataItem
     {
@@ -94,43 +98,54 @@ else
         public double Revenue { get; set; }
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await FinancialTransactionHistoryService.GetFinancialTransactionById(TransactionId);
+        await FinancialTransactionHistoryService.GetFinancialTransactionHistoryMinDate(TransactionId);
+
+        ChartDataGenerator();
+    }
+
     async Task AddTransactionHistory()
     {
-        var result =
-            await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Add Transaction History", new Dictionary<string, object>()
-            {
-                { "MinStartDate", FinancialTransactionHistoryService.FinancialTransactionHistoryMinDate }
-            });
-
-        if (result is FinancialTransactionHistory newTransactionHistory)
+        if (FinancialTransactionHistoryService.FinancialTransactionHistoryMinDate != null)
         {
-            await FinancialTransactionHistoryService.CreateFinancialTransactionHistory(TransactionId, newTransactionHistory);
+            var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Add Transaction History",
+                new Dictionary<string, object>()
+                {
+                    { "MinStartDate", FinancialTransactionHistoryService.FinancialTransactionHistoryMinDate }
+                });
 
-            await FinancialTransactionHistoryService.GetFinancialTransactionById(TransactionId);
-            
-            await FinancialTransactionHistoryService.GetFinancialTransactionHistoryMinDate(TransactionId);
+            if (result is FinancialTransactionHistory newTransactionHistory)
+            {
+                await FinancialTransactionHistoryService.CreateFinancialTransactionHistory(TransactionId, newTransactionHistory);
+                await FinancialTransactionHistoryService.GetFinancialTransactionById(TransactionId);
+                await FinancialTransactionHistoryService.GetFinancialTransactionHistoryMinDate(TransactionId);
 
-
-            _displayData = DisplayDataGenerator(FinancialTransactionHistoryService.FinancialTransaction.History);
-            _step = _displayData.Count > 20 ? 3 : 1;
-
-            StateHasChanged();
+                ChartDataGenerator();
+                StateHasChanged();
+            }
         }
     }
 
     async Task UpdateTransactionHistory(FinancialTransactionHistory history)
     {
-        var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History", new Dictionary<string, object>() { { "TransactionHistory", history},{"ButtonName", "Update"} });
+        var result = await DialogService.OpenAsync<UpsertTransactionHistoryDialog>("Update Transaction History",
+            new Dictionary<string, object>()
+            {
+                { "TransactionHistory", history }, { "ButtonName", "Update" }
+            });
 
-        if (result is FinancialTransactionHistory updatedFinancialTransactionHistory)
+        if (result is FinancialTransactionHistory)
         {
             await FinancialTransactionHistoryService.UpdateFinancialTransactionHistory(history);
+            ChartDataGenerator();
         }
     }
 
-    private List<DataItem> DisplayDataGenerator(List<FinancialTransactionHistory> history)
+    private static List<DataItem> DisplayDataGenerator(List<FinancialTransactionHistory> history)
     {
-        List<DataItem> output = new List<DataItem>();
+        var output = new List<DataItem>();
 
         history.ForEach(x =>
         {
@@ -144,8 +159,12 @@ else
         return output;
     }
 
-    List<DataItem> _displayData = new List<DataItem>();
-    int _step = 5;
+    //Generates the view data for the RadzenChart
+    void ChartDataGenerator()
+    {
+        if (FinancialTransactionHistoryService.FinancialTransaction != null) _displayData = DisplayDataGenerator(FinancialTransactionHistoryService.FinancialTransaction.History);
+        _step = _displayData.Count > 20 ? 3 : 1;
+    }
 
     void GoBack()
     {
@@ -158,8 +177,4 @@ else
         return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-GB"));
     }
 
-    bool smooth = true;
-    bool sharedTooltip = true;
-    bool showDataLabels = true;
-    bool showMarkers = true;
 }

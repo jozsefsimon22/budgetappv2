@@ -82,10 +82,14 @@ public class FinancialTransactionHistoryService(DataContext dbContext) : IFinanc
                 Message = "History entry not found"
             };
         }
+        
+        existingEntry.StartDate = historyEntry.StartDate;
+        existingEntry.EndDate = historyEntry.EndDate;
+        existingEntry.Amount = historyEntry.Amount;
 
         try
         {
-            dbContext.Entry(historyEntry).State = EntityState.Modified;
+            dbContext.Entry(existingEntry).State = EntityState.Modified;
             await dbContext.SaveChangesAsync();
         }
         catch (Exception ex)
