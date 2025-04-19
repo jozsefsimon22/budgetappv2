@@ -21,4 +21,16 @@ public class FinancialTransactionHistoryController(
         var result = await financialTransactionHistoryService.GetMinStartDateAsync(id);
         return Ok(result);
     }
+
+    [HttpPut]
+    public async Task<ActionResult<ServiceResponse<FinancialTransactionHistory>>> UpdateFinancialTransactionHistory(
+        FinancialTransactionHistory transactionHistory)
+    {
+        var result = await financialTransactionHistoryService.UpdateFinancialTransactionHistory(transactionHistory);
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
 }

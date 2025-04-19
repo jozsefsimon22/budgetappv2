@@ -16,7 +16,19 @@ public class FinancialTransactionHistoryService(HttpClient httpClient) : IFinanc
         
         return financialTransaction;
     }
-    
+
+    public async Task UpdateFinancialTransactionHistory(FinancialTransactionHistory transactionHistory)
+    {
+        var result = await httpClient.PutAsJsonAsync($"api/FinancialTransactionHistory", transactionHistory);
+        
+        if (!result.IsSuccessStatusCode)
+        {
+            var error = await result.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"Error updating financial transaction history: {result.StatusCode} - {error}");
+        }
+        var financialTransaction = (await result.Content.ReadFromJsonAsync<ServiceResponse<FinancialTransaction>>())?.Data;
+    }
+
     public async Task GetFinancialTransactionById(Guid id)
     {
         var result = await httpClient.GetFromJsonAsync<ServiceResponse<FinancialTransaction>>($"api/Transaction/{id}");

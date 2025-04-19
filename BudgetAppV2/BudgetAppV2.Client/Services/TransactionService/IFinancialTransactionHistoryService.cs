@@ -6,6 +6,7 @@ public interface IFinancialTransactionHistoryService
     public DateTime? FinancialTransactionHistoryMinDate { get; set; }
 
     Task<FinancialTransaction> CreateFinancialTransactionHistory(Guid financialTransactionId, FinancialTransactionHistory transactionHistory);
+    Task UpdateFinancialTransactionHistory(FinancialTransactionHistory transactionHistory);
     Task GetFinancialTransactionById(Guid id);
     Task GetFinancialTransactionHistoryMinDate(Guid financialTransactionId);
 }

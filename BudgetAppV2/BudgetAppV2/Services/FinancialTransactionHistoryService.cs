@@ -67,6 +67,42 @@ public class FinancialTransactionHistoryService(DataContext dbContext) : IFinanc
         };
     }
 
+    public async Task<ServiceResponse<FinancialTransactionHistory>> UpdateFinancialTransactionHistory(FinancialTransactionHistory history)
+    {
+        var historyEntry = history ?? throw new ArgumentNullException(nameof(history));
+
+        var existingEntry = await dbContext.FinancialTransactionHistories
+            .FirstOrDefaultAsync(h => h.Id == historyEntry.Id);
+
+        if (existingEntry == null)
+        {
+            return new ServiceResponse<FinancialTransactionHistory>
+            {
+                Success = false,
+                Message = "History entry not found"
+            };
+        }
+
+        try
+        {
+            dbContext.Entry(historyEntry).State = EntityState.Modified;
+            await dbContext.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse<FinancialTransactionHistory>
+            {
+                Success = false,
+                Message = $"Update failed: {ex.Message}"
+            };
+        }
+
+        return new ServiceResponse<FinancialTransactionHistory>()
+        {
+            Data = historyEntry
+        };
+    }
+
     public Task DeleteHistoryEntryAsync(Guid historyId)
     {
         throw new NotImplementedException();

@@ -46,7 +46,7 @@
         <!-- Buttons -->
         <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
             <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@Cancel"/>
-            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Add" Type="submit" Style="margin-right: 1rem;"/>
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@ButtonName" Type="submit" Style="margin-right: 1rem;"/>
         </div>
     </div>
 
@@ -56,6 +56,7 @@
 
     [Parameter] public FinancialTransactionHistory TransactionHistory { get; set; } = new FinancialTransactionHistory();
     [Parameter] public DateTime MinStartDate { get; set; }
+    [Parameter] public string ButtonName { get; set; } = "Add";
 
     protected override void OnParametersSet()
     {

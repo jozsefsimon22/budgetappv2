@@ -6,5 +6,6 @@ public interface IFinancialTransactionHistoryService
     Task<List<FinancialTransactionHistory>> GetHistoryForTransactionAsync(Guid transactionId);
     Task<ServiceResponse<FinancialTransactionHistory>> GetEntryByIdAsync(Guid historyId);
     Task<ServiceResponse<DateTime>> GetMinStartDateAsync(Guid transactionId);
+    Task<ServiceResponse<FinancialTransactionHistory>> UpdateFinancialTransactionHistory(FinancialTransactionHistory transactionHistory);
     Task DeleteHistoryEntryAsync(Guid historyId);
 }
