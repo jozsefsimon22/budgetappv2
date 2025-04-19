@@ -43,6 +43,13 @@ else
                 <RadzenDataGridColumn Property="Amount" Title="Amount" FormatString="{0:C}" Width="200px"/>
                 <RadzenDataGridColumn Property="StartDate" Title="Start Date" FormatString="{0:MM/dd/yyyy}" Width="160px"/>
                 <RadzenDataGridColumn Property="EndDate" Title="End Date" FormatString="{0:MM/dd/yyyy}" Width="160px"/>
+                <RadzenDataGridColumn>
+                <Template Context="transaction">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit">
+                                  @* Click="@(args => OpenUpdateTransactionDialog(transaction))"> *@
+                    </RadzenButton>
+                </Template>
+                </RadzenDataGridColumn>
             </Columns>
         </RadzenDataGrid>
 
