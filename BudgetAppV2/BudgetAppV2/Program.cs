@@ -34,8 +34,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
 //Register Custom Services
-builder.Services.AddScoped<IServerFinancialTransactionService, ServerServerFinancialTransactionService>();
-builder.Services.AddScoped<IFinancialTransactionHistoryService, FinancialTransactionHistoryService>();
+builder.Services.AddScoped<IServerFinancialTransactionService, ServerFinancialTransactionService>();
+builder.Services.AddScoped<IServerFinancialTransactionHistoryService, ServerFinancialTransactionHistoryService>();
 
 var app = builder.Build();
 

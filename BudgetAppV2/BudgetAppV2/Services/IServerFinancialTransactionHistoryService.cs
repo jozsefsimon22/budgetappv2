@@ -1,6 +1,6 @@
 namespace BudgetAppV2.Services;
 
-public interface IFinancialTransactionHistoryService
+public interface IServerFinancialTransactionHistoryService
 {
     Task<ServiceResponse<FinancialTransaction>> AddHistoryEntryAsync(Guid transactionId, FinancialTransactionHistory history);
     Task<List<FinancialTransactionHistory>> GetHistoryForTransactionAsync(Guid transactionId);

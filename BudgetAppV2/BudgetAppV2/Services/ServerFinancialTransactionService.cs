@@ -1,6 +1,6 @@
 namespace BudgetAppV2.Services;
 
-public class ServerServerFinancialTransactionService(DataContext dbContext) : IServerFinancialTransactionService
+public class ServerFinancialTransactionService(DataContext dbContext) : IServerFinancialTransactionService
 {
     public async Task<ServiceResponse<FinancialTransaction>> CreateTransactionAsync(FinancialTransaction transaction)
     {

@@ -1,6 +1,6 @@
 namespace BudgetAppV2.Services;
 
-public class FinancialTransactionHistoryService(DataContext dbContext) : IFinancialTransactionHistoryService
+public class ServerFinancialTransactionHistoryService(DataContext dbContext) : IServerFinancialTransactionHistoryService
 {
     public async Task<ServiceResponse<FinancialTransaction>> AddHistoryEntryAsync(Guid transactionId,
         FinancialTransactionHistory transactionHistory)
