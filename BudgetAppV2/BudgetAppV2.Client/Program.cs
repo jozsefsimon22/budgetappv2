@@ -1,6 +1,8 @@
 global using System.Net.Http.Json;
 global using Shared.Entities;
 global using BudgetAppV2.Client.Services.TransactionService;
+global using Shared.Entities.Users;
+using BudgetAppV2.Client.Services.AuthService;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
 
@@ -19,5 +21,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 //Custom Services
 builder.Services.AddScoped<IClientFinancialTransactionService, ClientFinancialTransactionService>();
 builder.Services.AddScoped<IClientFinancialTransactionHistoryService, ClientFinancialTransactionHistoryService>();
+builder.Services.AddScoped<IClientAuthService, ClientAuthService>();
 
 await builder.Build().RunAsync();

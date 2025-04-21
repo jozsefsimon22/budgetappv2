@@ -1,0 +1,44 @@
+﻿@page "/register"
+@inject IClientAuthService AuthService
+@using BudgetAppV2.Client.Layout
+@using BudgetAppV2.Client.Services.AuthService
+
+@layout LoginLayout
+
+<div class="center">
+    <EditForm Model="_user" OnValidSubmit="HandleRegistration">
+        <DataAnnotationsValidator/>
+        <div>
+            <label for="email">Email</label>
+            <InputText id="email" @bind-Value="_user.Email"/>
+            <ValidationMessage For="() => _user.Email"/>
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <InputText id="password" @bind-Value="_user.Password"/>
+            <ValidationMessage For="() => _user.Password"/>
+        </div>
+        <div>
+            <label for="confirmPassword">Confirm Password</label>
+            <InputText id="confirmPassword" @bind-Value="_user.ConfirmPassword"/>
+            <ValidationMessage For="() => _user.ConfirmPassword"/>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+        <ValidationSummary/>
+        <div class="text-danger">
+            <span>@_errorMessage</span>
+        </div>
+    </EditForm>
+</div>
+
+@code
+{
+    readonly UserRegister _user = new UserRegister();
+    string _errorMessage = string.Empty;
+
+    async Task HandleRegistration()
+    {
+        var result = await AuthService.Register(_user);
+        _errorMessage = result.Success ? result.Message : string.Empty;
+    }
+}

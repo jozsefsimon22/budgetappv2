@@ -1,0 +1,36 @@
+﻿@page "/login"
+@using BudgetAppV2.Client.Layout
+@layout LoginLayout
+
+<div class="center">
+    <EditForm Model="_user" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator/>
+        <div>
+            <label for="email">Email</label>
+            <InputText id="email" @bind-Value="_user.Email"/>
+            <ValidationMessage For="() => _user.Email"/>
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <InputText id="password" @bind-Value="_user.Password"/>
+            <ValidationMessage For="() => _user.Password"/>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <ValidationSummary/>
+        <div class="text-danger">
+            <span>@_errorMessage</span>
+        </div>
+    </EditForm>
+</div>
+
+@code
+{
+    private UserLogin _user = new UserLogin();
+    private string _errorMessage = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        Console.WriteLine("Log me in!");
+        _errorMessage = "Logging in.";
+    }
+}

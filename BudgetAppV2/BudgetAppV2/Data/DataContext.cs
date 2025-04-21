@@ -4,6 +4,7 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
 {
     public DbSet<FinancialTransaction> FinancialTransactions { get; set; }
     public DbSet<FinancialTransactionHistory> FinancialTransactionHistories { get; set; }
+    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

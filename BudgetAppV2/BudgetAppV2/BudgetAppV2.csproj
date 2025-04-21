@@ -4,6 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>da2fe2c6-9353-406c-8d84-a7624f5c013e</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -11,8 +12,10 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.8.0" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
         <ProjectReference Include="..\BudgetAppV2.Client\BudgetAppV2.Client.csproj" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
         <PackageReference Include="Radzen.Blazor" Version="5.6.15" />
