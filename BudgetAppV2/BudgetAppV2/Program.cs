@@ -4,6 +4,7 @@ global using Microsoft.EntityFrameworkCore;
 global using BudgetAppV2.Data;
 global using BudgetAppV2.Services;
 using BudgetAppV2.Client.Pages;
+using BudgetAppV2.Client.Services.TransactionService;
 using BudgetAppV2.Components;
 using Radzen;
 
@@ -32,6 +33,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpClient();
+
+// Client Services
+builder.Services.AddHttpClient<IClientFinancialTransactionService, ClientFinancialTransactionService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5194/");
+});
+
+builder.Services.AddHttpClient<IClientFinancialTransactionHistoryService, ClientFinancialTransactionHistoryService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5194/");
+});
 
 //Register Custom Services
 builder.Services.AddScoped<IServerFinancialTransactionService, ServerFinancialTransactionService>();

@@ -1,6 +1,6 @@
 namespace BudgetAppV2.Client.Services.TransactionService;
 
-public interface IFinancialTransactionHistoryService
+public interface IClientFinancialTransactionHistoryService
 {
     public FinancialTransaction? FinancialTransaction { get; set; }
     public DateTime? FinancialTransactionHistoryMinDate { get; set; }

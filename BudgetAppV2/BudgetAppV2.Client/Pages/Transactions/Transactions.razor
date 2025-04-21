@@ -1,21 +1,20 @@
 ﻿@page "/transactions"
 @using Shared.Entities
 @using BudgetAppV2.Client.Pages.Dialogs
-@inject IFinancialTransactionService FinancialTransactionService
+@inject IClientFinancialTransactionService ClientFinancialTransactionService
 @inject DialogService DialogService
 @inject NavigationManager NavigationManager
 
-
-@if (!FinancialTransactionService.FinancialTransactions.Any())
+@if (_isLoading)
 {
-    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate"/>
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 }
 else
 {
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
                     FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" PageSize="20" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                    Data="@FinancialTransactionService.FinancialTransactions" LogicalFilterOperator="LogicalFilterOperator.Or"
+                    Data="@ClientFinancialTransactionService.FinancialTransactions" LogicalFilterOperator="LogicalFilterOperator.Or"
                     SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedTransaction>
         <HeaderTemplate>
             <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Text="Add New Transaction"
@@ -58,16 +57,17 @@ else
     </RadzenDataGrid>
 }
 
-
 @code {
     List<FinancialTransaction> financialTransactionToInsert = new List<FinancialTransaction>();
     List<FinancialTransaction> financialTransactionToUpdate = new List<FinancialTransaction>();
 
+    bool _isLoading = true;
+
     protected override async Task OnInitializedAsync()
     {
-        await FinancialTransactionService.GetFinancialTransactions();
+        await ClientFinancialTransactionService.GetFinancialTransactions();
+        _isLoading = false;
     }
-
 
     async Task OpenAddTransactionDialog()
     {
@@ -78,8 +78,8 @@ else
         if (result is FinancialTransaction newTransaction)
         {
             // Add the new transaction and fetch new list
-            await FinancialTransactionService.CreateFinancialTransaction(newTransaction);
-            await FinancialTransactionService.GetFinancialTransactions();
+            await ClientFinancialTransactionService.CreateFinancialTransaction(newTransaction);
+            await ClientFinancialTransactionService.GetFinancialTransactions();
 
             // Update the UI
             StateHasChanged();
@@ -106,7 +106,7 @@ else
         if (result is FinancialTransaction newTransaction)
         {
             // Add the new transaction to the collection
-            FinancialTransactionService.FinancialTransactions.Add(newTransaction);
+            ClientFinancialTransactionService.FinancialTransactions.Add(newTransaction);
 
             // Update the UI
             StateHasChanged();
@@ -141,7 +141,5 @@ else
         // await 
     }
 
-
     IList<FinancialTransaction> _selectedTransaction;
-
 }

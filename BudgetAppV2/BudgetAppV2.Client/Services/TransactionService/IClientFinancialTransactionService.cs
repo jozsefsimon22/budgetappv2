@@ -1,7 +1,7 @@
 
 namespace BudgetAppV2.Client.Services.TransactionService;
 
-public interface IFinancialTransactionService
+public interface IClientFinancialTransactionService
 {
     List<FinancialTransaction> FinancialTransactions { get; set; }
     public FinancialTransaction FinancialTransaction { get; set; } 

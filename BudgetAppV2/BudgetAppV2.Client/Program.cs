@@ -17,7 +17,7 @@ builder.Services.AddRadzenCookieThemeService(options =>
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 //Custom Services
-builder.Services.AddScoped<IFinancialTransactionService, FinancialTransactionService>();
-builder.Services.AddScoped<IFinancialTransactionHistoryService, FinancialTransactionHistoryService>();
+builder.Services.AddScoped<IClientFinancialTransactionService, ClientFinancialTransactionService>();
+builder.Services.AddScoped<IClientFinancialTransactionHistoryService, ClientFinancialTransactionHistoryService>();
 
 await builder.Build().RunAsync();

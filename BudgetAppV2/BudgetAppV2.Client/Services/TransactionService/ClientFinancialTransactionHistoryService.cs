@@ -1,6 +1,6 @@
 namespace BudgetAppV2.Client.Services.TransactionService;
 
-public class FinancialTransactionHistoryService(HttpClient httpClient) : IFinancialTransactionHistoryService
+public class ClientFinancialTransactionHistoryService(HttpClient httpClient) : IClientFinancialTransactionHistoryService
 {
     public FinancialTransaction? FinancialTransaction { get; set; } = null;
     public DateTime? FinancialTransactionHistoryMinDate { get; set; }

@@ -1,7 +1,7 @@
 
 namespace BudgetAppV2.Client.Services.TransactionService;
 
-public class FinancialTransactionService(HttpClient httpClient) : IFinancialTransactionService
+public class ClientFinancialTransactionService(HttpClient httpClient) : IClientFinancialTransactionService
 {
     public List<FinancialTransaction> FinancialTransactions { get; set; } = [];
     public FinancialTransaction FinancialTransaction { get; set; } = new FinancialTransaction();
