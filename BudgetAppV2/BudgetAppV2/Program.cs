@@ -5,11 +5,9 @@ global using Microsoft.EntityFrameworkCore;
 global using BudgetAppV2.Data;
 global using BudgetAppV2.Services;
 global using BudgetAppV2.Services.AuthService;
-using BudgetAppV2.Client.Pages;
-using BudgetAppV2.Client.Services.AuthService;
-using BudgetAppV2.Client.Services.TransactionService;
 using BudgetAppV2.Components;
 using Radzen;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +18,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 
 builder.Services.AddRazorComponents()
-     .AddInteractiveServerComponents()
-     .AddInteractiveWebAssemblyComponents();
+    .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddRadzenComponents();
 
@@ -35,25 +32,6 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHttpClient();
-
-// Client Services
-builder.Services.AddHttpClient<IClientFinancialTransactionService, ClientFinancialTransactionService>(client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5194/");
-});
-
-builder.Services.AddHttpClient<IClientFinancialTransactionHistoryService, ClientFinancialTransactionHistoryService>(client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5194/");
-});
-
-builder.Services.AddHttpClient<IClientAuthService, ClientAuthService>(client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5194/");
-});
-
-
 //Register Custom Services
 builder.Services.AddScoped<IServerFinancialTransactionService, ServerFinancialTransactionService>();
 builder.Services.AddScoped<IServerFinancialTransactionHistoryService, ServerFinancialTransactionHistoryService>();
@@ -62,6 +40,7 @@ builder.Services.AddScoped<IServerAuthService, ServerAuthService>();
 var app = builder.Build();
 
 app.UseSwaggerUI();
+app.UseSwagger();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -75,19 +54,14 @@ else
     app.UseHsts();
 }
 
-app.UseSwagger();
-app.UseHttpsRedirection();
-
-// app.UseRouting();
 app.MapControllers();
 
-app.UseStaticFiles();
+app.UseHttpsRedirection();
 app.UseAntiforgery();
 
-
+app.MapStaticAssets();
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(Counter).Assembly);
+    .AddAdditionalAssemblies(typeof(BudgetAppV2.Client._Imports).Assembly);
 
 app.Run();
