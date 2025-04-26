@@ -87,7 +87,31 @@ public class ServerAuthService(DataContext dbContext, IConfiguration configurati
         response.Message = "Login successful!";
         return response;
     }
-    
+
+    public async Task<ServiceResponse<bool>> ChangePassword(int userId, string newPassword)
+    {
+        var user = await dbContext.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return new ServiceResponse<bool>
+            {
+                Success = false,
+                Message = "User not found"
+            };
+        }
+        CreatePasswordHash(newPassword, out var passwordHash, out var passwordSalt);
+        user.PasswordHash = passwordHash;
+        user.PasswordSalt = passwordSalt;
+        
+        await dbContext.SaveChangesAsync();
+
+        return new ServiceResponse<bool>()
+        {
+            Data = true,
+            Message = "Password has been changed"
+        };
+    }
+
     private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
     {
         using var hmac = new HMACSHA512(passwordSalt);

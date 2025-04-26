@@ -6,6 +6,8 @@ global using BudgetAppV2.Data;
 global using BudgetAppV2.Services;
 global using BudgetAppV2.Services.AuthService;
 using BudgetAppV2.Components;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Radzen;
 
 
@@ -37,6 +39,20 @@ builder.Services.AddScoped<IServerFinancialTransactionService, ServerFinancialTr
 builder.Services.AddScoped<IServerFinancialTransactionHistoryService, ServerFinancialTransactionHistoryService>();
 builder.Services.AddScoped<IServerAuthService, ServerAuthService>();
 
+//Authentication
+var appSettingsToken = builder.Configuration.GetSection("AppSettings:Token").Value;
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(appSettingsToken)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
+
 var app = builder.Build();
 
 app.UseSwaggerUI();
@@ -53,6 +69,9 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
