@@ -6,13 +6,15 @@ public class ClientAuthService(HttpClient httpClient) : IClientAuthService
 {
     public async Task<ServiceResponse<int>> Register(UserRegister request)
     {
-        var result = await httpClient.PostAsJsonAsync<UserRegister>("api/auth/register", request);
+        var result = await httpClient.PostAsJsonAsync("api/auth/register", request);
         
         return await result.Content.ReadFromJsonAsync<ServiceResponse<int>>();
     }
 
-    public Task<ServiceResponse<int>> Login(UserLogin request)
+    public async Task<ServiceResponse<string>> Login(UserLogin request)
     {
-        throw new NotImplementedException();
+        var result = await httpClient.PostAsJsonAsync("api/auth/login", request);
+        
+        return await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
     }
 }

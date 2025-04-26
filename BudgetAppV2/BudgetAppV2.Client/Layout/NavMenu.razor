@@ -1,42 +1,28 @@
-﻿@* <div class="top-row ps-3 navbar navbar-dark"> *@
-@*     <div class="container-fluid"> *@
-@*         <a class="navbar-brand" href="">BudgetAppV2</a> *@
-@*     </div> *@
-@* </div> *@
-@* *@
-@* <input type="checkbox" title="Navigation menu" class="navbar-toggler"/> *@
-@* *@
-@* <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()"> *@
-@*     <nav class="flex-column"> *@
-@*         <div class="nav-item px-3"> *@
-@*             <NavLink class="nav-link" href="" Match="NavLinkMatch.All"> *@
-@*                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home *@
-@*             </NavLink> *@
-@*         </div> *@
-@* *@
-@*         <div class="nav-item px-3"> *@
-@*             <NavLink class="nav-link" href="counter"> *@
-@*                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter *@
-@*             </NavLink> *@
-@*         </div> *@
-@* *@
-@*         <div class="nav-item px-3"> *@
-@*             <NavLink class="nav-link" href="weather"> *@
-@*                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather *@
-@*             </NavLink> *@
-@*         </div> *@
-@*     </nav> *@
-@* </div> *@
+﻿@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 <RadzenPanelMenu>
     <RadzenPanelMenuItem Text="Home" Icon="home" Path="/"/>
     <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" Path="/dashboard/"/>
     <RadzenPanelMenuItem Text="Dashboard V2" Icon="dashboard" Path="/dashboardV2/"/>
     <RadzenPanelMenuItem Text="Transactions" Icon="contract" Path="/transactions/" />
+    <RadzenPanelMenuItem Text="Profile" Icon="account_circle" Path="/profile/" />
     <RadzenPanelMenuItem Text="Login" Icon="calculate" Path="/login/"/>
     <RadzenPanelMenuItem Text="Register" Icon="calculate" Path="/register/"/>
     <RadzenPanelMenuItem Text="Settings" Icon="settings" Path="/settings/"/>
+    <RadzenPanelMenuItem Text="Log Out" Icon="logout" Click="Logout"/>
 </RadzenPanelMenu>
 <div class="rz-p-4">
     Sidebar
 </div>
+
+@code
+{
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("authToken");
+        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+}

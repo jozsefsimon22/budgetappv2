@@ -1,6 +1,11 @@
 ﻿@page "/login"
 @using BudgetAppV2.Client.Layout
+@using BudgetAppV2.Client.Services.AuthService
 @layout LoginLayout
+@inject IClientAuthService AuthService
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="center">
     <EditForm Model="_user" OnValidSubmit="HandleLogin">
@@ -30,7 +35,17 @@
 
     private async Task HandleLogin()
     {
-        Console.WriteLine("Log me in!");
-        _errorMessage = "Logging in.";
+        var result = await AuthService.Login(_user);
+        if (result.Success)
+        {
+            _errorMessage = string.Empty;
+            await LocalStorage.SetItemAsync("authToken", result.Data);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            NavigationManager.NavigateTo("/dashboard");
+        }
+        else
+        {
+            _errorMessage = result.Message;
+        }
     }
 }
